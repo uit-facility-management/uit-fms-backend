@@ -1,26 +1,62 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { CreateUserDto, SignInDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
+
+import { InjectRepository } from '@nestjs/typeorm';
+import { Not, Repository } from 'typeorm';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+  async signIn(data: SignInDto) {
+    const user = await this.userRepository.findOne({
+      where: { username: data.username },
+    });
+    const password = crypto
+      .createHash('sha1')
+      .update(data.password)
+      .digest('hex');
+    data.password = password;
+    if (!user) {
+      throw new NotFoundException('Username does not exist');
+    } else if (user && user.password === data.password) {
+      return user;
+    } else if (user.password !== data.password) {
+      throw new ConflictException('Password is incorrect');
+    }
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async create(createUserDto: CreateUserDto) {
+    const user = this.userRepository.create(createUserDto);
+    user.password = crypto
+      .createHash('sha1')
+      .update(createUserDto.password)
+      .digest('hex');
+    return this.userRepository.save(user);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findAll() {
+    return this.userRepository.find();
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findOne(id: string) {
+    return this.userRepository.findOne({ where: { id } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    return this.userRepository.update(id, updateUserDto);
+  }
+
+  async remove(id: string) {
+    return this.userRepository.delete(id);
   }
 }
