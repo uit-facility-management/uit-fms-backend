@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { BuildingService } from './building.service';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
@@ -19,16 +27,19 @@ export class BuildingController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.buildingService.findOne(+id);
+    return this.buildingService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBuildingDto: UpdateBuildingDto) {
-    return this.buildingService.update(+id, updateBuildingDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateBuildingDto: UpdateBuildingDto,
+  ) {
+    return this.buildingService.update(id, updateBuildingDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.buildingService.remove(+id);
+    return this.buildingService.remove(id);
   }
 }
