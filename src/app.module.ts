@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { BuildingModule } from './building/building.module';
+import { RoomModule } from './room/room.module';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { BuildingModule } from './building/building.module';
         autoLoadEntities: true,
         synchronize: true,
       }),
-    }), UserModule, BuildingModule,
+    }), UserModule, BuildingModule, RoomModule,
   ],
 })
 export class AppModule {}
