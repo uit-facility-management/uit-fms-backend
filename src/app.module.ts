@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { BuildingModule } from './building/building.module';
+import { RoomModule } from './room/room.module';
+import { RoomAssetsModule } from './room-assets/room-assets.module';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { BuildingModule } from './building/building.module';
         autoLoadEntities: true,
         synchronize: true,
       }),
-    }), UserModule, BuildingModule,
+    }), UserModule, BuildingModule, RoomModule, RoomAssetsModule,
   ],
 })
 export class AppModule {}
