@@ -5,6 +5,7 @@ import { UserModule } from './user/user.module';
 import { BuildingModule } from './building/building.module';
 import { RoomModule } from './room/room.module';
 import { RoomAssetsModule } from './room-assets/room-assets.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { RoomAssetsModule } from './room-assets/room-assets.module';
         autoLoadEntities: true,
         synchronize: true,
       }),
-    }), UserModule, BuildingModule, RoomModule, RoomAssetsModule,
+    }), UserModule, BuildingModule, RoomModule, RoomAssetsModule, AuthModule,
   ],
 })
 export class AppModule {}

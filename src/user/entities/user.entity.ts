@@ -7,15 +7,22 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @ApiProperty({
+    example: 'johndoe@example.com',
+    description: 'Email address of the user',
+  })
+  @Column({ type: 'varchar', length: 100, unique: true })
+  email: string;
+
   @ApiProperty({ example: 'JohnDoe', description: 'Username of the user' })
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100, unique: true })
   username: string;
 
   @ApiProperty({
     example: 'John Doe',
     description: 'Full name of the user',
   })
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   fullName: string;
   @ApiProperty({
     example: 'hashedpassword123',
@@ -23,6 +30,13 @@ export class User {
   })
   @Column({ type: 'varchar', length: 100 })
   password: string;
+
+  @ApiProperty({
+    example: 'admin',
+    description: 'Role of the user (admin or user)',
+  })
+  @Column({ type: 'varchar', length: 20, default: 'admin' })
+  role: 'admin' | 'teacher';
 
   @ApiProperty({
     example: '2023-01-01T00:00:00Z',
@@ -37,4 +51,3 @@ export class User {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 }
-

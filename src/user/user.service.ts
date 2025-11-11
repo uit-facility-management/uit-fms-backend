@@ -37,13 +37,12 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     const user = this.userRepository.create(createUserDto);
-    user.password = crypto
-      .createHash('sha1')
-      .update(createUserDto.password)
-      .digest('hex');
     return this.userRepository.save(user);
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { email } });
+  }
   async findAll() {
     return this.userRepository.find();
   }
