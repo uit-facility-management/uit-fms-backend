@@ -20,6 +20,14 @@ export class RoomController {
     return this.roomService.create(createRoomDto);
   }
 
+  @Get(':id/assets')
+  findRoomAssets(@Param('id') id: string) {
+    return this.roomService.findRoomAssets(id);
+  }
+  @Get(':id/schedules')
+  findRoomSchedules(@Param('id') id: string) {
+    return this.roomService.findRoomSchedules(id);
+  }
   @Get()
   findAll() {
     return this.roomService.findAll();

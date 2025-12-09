@@ -19,7 +19,10 @@ export class BuildingController {
   create(@Body() createBuildingDto: CreateBuildingDto) {
     return this.buildingService.create(createBuildingDto);
   }
-
+  @Get(':id/rooms')
+  findRooms(@Param('id') id: string) {
+    return this.buildingService.findRooms(id);
+  }
   @Get()
   findAll() {
     return this.buildingService.findAll();

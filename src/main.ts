@@ -11,6 +11,12 @@ async function bootstrap() {
     .setDescription('API docs for Facility & Room Management System')
     .setVersion('1.0')
     .build();
+  
+  app.enableCors({
+    origin: 'http://localhost:3000', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true, 
+  });
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);

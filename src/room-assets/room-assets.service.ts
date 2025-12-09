@@ -11,24 +11,26 @@ export class RoomAssetsService {
     @InjectRepository(RoomAsset)
     private roomAssetsRepository: Repository<RoomAsset>,
   ) {}
-  create(createRoomAssetDto: CreateRoomAssetDto) {
+  async create(createRoomAssetDto: CreateRoomAssetDto) {
     const roomAsset = this.roomAssetsRepository.create(createRoomAssetDto);
     return this.roomAssetsRepository.save(roomAsset);
   }
-
-  findAll() {
+  async findByRoom(room_id: string) {
+    return this.roomAssetsRepository.find({ where: { room_id } });
+  }
+  async findAll() {
     return this.roomAssetsRepository.find();
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     return this.roomAssetsRepository.findOneBy({ id });
   }
 
-  update(id: string, updateRoomAssetDto: UpdateRoomAssetDto) {
+  async update(id: string, updateRoomAssetDto: UpdateRoomAssetDto) {
     return this.roomAssetsRepository.update(id, updateRoomAssetDto);
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     return this.roomAssetsRepository.delete(id);
   }
 }
