@@ -19,6 +19,10 @@ export class RoomController {
   create(@Body() createRoomDto: CreateRoomDto) {
     return this.roomService.create(createRoomDto);
   }
+  @Get(':id/incidents')
+  findRoomIncidents(@Param('id') id: string) {
+    return this.roomService.findRoomIncidents(id);
+  }
 
   @Get(':id/assets')
   findRoomAssets(@Param('id') id: string) {

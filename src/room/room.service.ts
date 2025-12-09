@@ -6,10 +6,12 @@ import { Room } from './entities/room.entity';
 import { Repository } from 'typeorm';
 import { RoomAssetsService } from 'src/room-assets/room-assets.service';  
 import { ScheduleService } from 'src/schedule/schedule.service';
+import { IncidentService } from 'src/incident/incident.service';
 @Injectable()
 export class RoomService {
   constructor(
-    private scheduleService: ScheduleService,
+    private readonly incidentService: IncidentService,
+    private readonly scheduleService: ScheduleService,
     private readonly roomAssetService: RoomAssetsService,
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
@@ -18,6 +20,9 @@ export class RoomService {
   async create(createRoomDto: CreateRoomDto) {
     const room = this.roomRepository.create(createRoomDto);
     return this.roomRepository.save(room);
+  }
+  async findRoomIncidents(room_id: string) {
+    return this.incidentService.findByRoom(room_id);
   }
   async findRoomAssets(room_id: string) {
     return this.roomAssetService.findByRoom(room_id);
