@@ -40,7 +40,6 @@ export class RoomService {
   async findOne(id: string) {
     return this.roomRepository.findOne({ where: { id } });
   }
-
   async update(id: string, updateRoomDto: UpdateRoomDto) {
     await this.roomRepository.update(id, updateRoomDto);
     return this.roomRepository.findOne({ where: { id } });

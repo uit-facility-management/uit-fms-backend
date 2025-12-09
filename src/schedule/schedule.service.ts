@@ -1,8 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
-import { UpdateScheduleDto } from './dto/update-schedule.dto';
+import {
+  UpdateScheduleDto,
+  UpdateScheduleStatusDto,
+} from './dto/update-schedule.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Schedule } from './entities/schedule.entity';
+import { Schedule, ScheduleStatus } from './entities/schedule.entity';
 import { Repository } from 'typeorm';
 @Injectable()
 export class ScheduleService {
@@ -14,9 +17,18 @@ export class ScheduleService {
     const schedule = this.scheduleRepository.create(createScheduleDto);
     return this.scheduleRepository.save(schedule);
   }
-
+  async updateStatus(id: string, status: UpdateScheduleStatusDto) {
+    const schedule = await this.scheduleRepository.findOne({ where: { id } });
+    if (schedule) {
+      schedule.status = status.schedule_status;
+      return this.scheduleRepository.save(schedule);
+    }
+    return null;
+  }
   async findByRoom(room_id: string) {
-    const schedules = await this.scheduleRepository.find({ where: { room_id } });
+    const schedules = await this.scheduleRepository.find({
+      where: { room_id },
+    });
     return schedules;
   }
   async findAll() {

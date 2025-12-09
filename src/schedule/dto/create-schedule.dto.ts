@@ -52,3 +52,4 @@ export class CreateScheduleDto {
   @IsEnum(ScheduleStatus)
   status: ScheduleStatus;
 }
+
