@@ -11,7 +11,7 @@ import { BuildingService } from './building.service';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
 
-@Controller('building')
+@Controller('api/v1/building')
 export class BuildingController {
   constructor(private readonly buildingService: BuildingService) {}
 

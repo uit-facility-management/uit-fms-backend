@@ -16,7 +16,7 @@ import {
 import { ApiResponse } from '@nestjs/swagger';
 import { IncidentStatus } from './entities/incident.entity';
 
-@Controller('incident')
+@Controller('api/v1/incident')
 export class IncidentController {
   constructor(private readonly incidentService: IncidentService) {}
 

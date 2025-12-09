@@ -11,7 +11,7 @@ import { RoomService } from './room.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 
-@Controller('room')
+@Controller('api/v1/room')
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 

@@ -14,7 +14,7 @@ import {
   UpdateScheduleStatusDto,
 } from './dto/update-schedule.dto';
 
-@Controller('schedule')
+@Controller('api/v1/schedule')
 export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
 

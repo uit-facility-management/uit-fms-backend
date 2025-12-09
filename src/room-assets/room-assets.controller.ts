@@ -11,7 +11,7 @@ import { RoomAssetsService } from './room-assets.service';
 import { CreateRoomAssetDto } from './dto/create-room-asset.dto';
 import { UpdateRoomAssetDto } from './dto/update-room-asset.dto';
 
-@Controller('room-assets')
+@Controller('api/v1/room-assets')
 export class RoomAssetsController {
   constructor(private readonly roomAssetsService: RoomAssetsService) {}
 
