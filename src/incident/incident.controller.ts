@@ -9,8 +9,12 @@ import {
 } from '@nestjs/common';
 import { IncidentService } from './incident.service';
 import { CreateIncidentDto } from './dto/create-incident.dto';
-import { UpdateIncidentDto } from './dto/update-incident.dto';
+import {
+  UpdateIncidentDto,
+  UpdateIncidentStatusDto,
+} from './dto/update-incident.dto';
 import { ApiResponse } from '@nestjs/swagger';
+import { IncidentStatus } from './entities/incident.entity';
 
 @Controller('incident')
 export class IncidentController {
@@ -36,6 +40,16 @@ export class IncidentController {
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   findOne(@Param('id') id: string) {
     return this.incidentService.findOne(id);
+  }
+
+  @Patch(':id/status')
+  @ApiResponse({
+    status: 200,
+    description: 'The incident status has been updated.',
+  })
+  @ApiResponse({ status: 404, description: 'Incident not found.' })
+  updateStatus(@Param('id') id: string, @Body() data: UpdateIncidentStatusDto) {
+    return this.incidentService.updateStatus(id, data.status);
   }
 
   @Patch(':id')

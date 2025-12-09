@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateIncidentDto } from './dto/create-incident.dto';
 import { UpdateIncidentDto } from './dto/update-incident.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Incident } from './entities/incident.entity';
+import { Incident, IncidentStatus } from './entities/incident.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -31,6 +31,14 @@ export class IncidentService {
     return incident;
   }
 
+  async updateStatus(id: string, status: IncidentStatus) {
+    const incident = await this.incidentRepository.findOneBy({ id });
+    if (!incident) {
+      throw new NotFoundException(`Incident with id ${id} not found`);
+    }
+    incident.status = status;
+    return this.incidentRepository.save(incident);
+  }
   async update(id: string, updateIncidentDto: UpdateIncidentDto) {
     const incident = await this.incidentRepository.findOneBy({ id });
     if (!incident) {
