@@ -22,32 +22,30 @@ export class RoomService {
     return this.roomRepository.save(room);
   }
   async findFreeRooms(filter: FilterRoomDto) {
-    const freeRooms = await this.roomRepository
+    return this.roomRepository
       .createQueryBuilder('room')
       .where((qb) => {
-        const subQuery = qb
+        const sub = qb
           .subQuery()
-          .select('schedule.room_id')
-          .from('schedule', 'schedule')
-          .where('schedule.start_time < :end_time', {
-            end_time: filter.end_time,
+          .select('s.room_id')
+          .from('schedule', 's')
+          .where('DATE(s.start_time) <= DATE(:end)', { end: filter.end_time })
+          .andWhere('DATE(s.end_time) >= DATE(:start)', {
+            start: filter.start_time,
           })
-          .andWhere('schedule.end_time > :start_time', {
-            start_time: filter.start_time,
+          .andWhere('s.period_start < :periodEnd', {
+            periodEnd: filter.period_end,
           })
-          .andWhere('schedule.period_start < :period_end', {
-            period_end: filter.period_end,
-          })
-          .andWhere('schedule.period_end > :period_start', {
-            period_start: filter.period_start,
+          .andWhere('s.period_end > :periodStart', {
+            periodStart: filter.period_start,
           })
           .getQuery();
-        return 'room.id NOT IN ' + subQuery;
+
+        return `room.id NOT IN ${sub}`;
       })
       .getMany();
-      console.log(freeRooms);
-    return freeRooms;
   }
+
   async findRoomIncidents(room_id: string) {
     return this.incidentService.findByRoom(room_id);
   }
