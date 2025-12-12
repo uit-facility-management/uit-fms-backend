@@ -16,13 +16,21 @@ import { RedisOptions } from 'ioredis';
       useFactory: async (config: ConfigService) => ({
         connection: {
           url: config.get<string>('REDIS_URL'),
-          tls: {},
+          tls: {}, // dùng SSL cho Upstash
         } as RedisOptions,
       }),
     }),
 
     BullModule.registerQueue({
       name: 'mail_queue',
+      defaultJobOptions: {
+        removeOnComplete: true,
+        removeOnFail: true,
+        backoff: {
+          type: 'fixed',
+          delay: 30000,
+        },
+      },
     }),
 
     UserModule,
