@@ -1,35 +1,18 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailService } from './mail.service';
 import { MailProcessor } from './mail.processor';
 import { MailController } from './mail.controller';
 import { UserModule } from 'src/user/user.module';
+import { RedisOptions } from 'ioredis';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        const redisUrl = config.get<string>('REDIS_URL');
-
-        if (redisUrl) {
-          return {
-            connection: {
-              url: redisUrl,
-            },
-          };
-        }
-
-        return {
-          connection: {
-            host: 'localhost',
-            port: 6379,
-          },
-        };
-      },
+    BullModule.forRoot({
+      connection: {
+        url: process.env.REDIS_URL,
+        tls: {},
+      } as RedisOptions,
     }),
 
     BullModule.registerQueue({
