@@ -48,7 +48,7 @@ export class ScheduleService {
       schedule.status = status.schedule_status;
 
       await this.mailService.sendScheduleApprovedMail(
-        'khoadaubuu@gmail.com',
+        schedule.created_by,
         schedule.room_id,
         schedule.start_time.toString(),
         schedule.end_time.toString(),

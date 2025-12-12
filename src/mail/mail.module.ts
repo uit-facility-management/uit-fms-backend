@@ -3,6 +3,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { MailService } from './mail.service';
 import { MailProcessor } from './mail.processor';
 import { MailController } from './mail.controller';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { MailController } from './mail.controller';
     }),
     BullModule.registerQueue({
       name: 'mail_queue',
-    }),
+    }),UserModule
   ],
   controllers: [MailController],
   providers: [MailService, MailProcessor],

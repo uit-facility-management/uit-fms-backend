@@ -1,7 +1,7 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateScheduleDto } from './create-schedule.dto';
 import { ScheduleStatus } from '../entities/schedule.entity';
-import { IsEnum, IsString } from 'class-validator';
+import { IsEnum } from 'class-validator';
 
 export class UpdateScheduleDto extends PartialType(CreateScheduleDto) {}
 export class UpdateScheduleStatusDto {
