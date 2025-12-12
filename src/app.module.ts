@@ -8,6 +8,7 @@ import { RoomAssetsModule } from './room-assets/room-assets.module';
 import { AuthModule } from './auth/auth.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { IncidentModule } from './incident/incident.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { IncidentModule } from './incident/incident.module';
         autoLoadEntities: true,
         synchronize: true,
       }),
-    }), UserModule, BuildingModule, RoomModule, RoomAssetsModule, AuthModule, ScheduleModule, IncidentModule,
+    }), UserModule, BuildingModule, RoomModule, RoomAssetsModule, AuthModule, ScheduleModule, IncidentModule, MailModule,
   ],
 })
 export class AppModule {}

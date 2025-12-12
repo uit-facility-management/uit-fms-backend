@@ -12,12 +12,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Schedule } from './entities/schedule.entity';
 import { Repository } from 'typeorm';
 import { DataSource } from 'typeorm';
+import { MailService } from 'src/mail/mail.service';
 @Injectable()
 export class ScheduleService {
   constructor(
     @InjectRepository(Schedule)
     private readonly scheduleRepository: Repository<Schedule>,
     private readonly dataSource: DataSource,
+    private readonly mailService: MailService,
   ) {}
   async create(createScheduleDto: CreateScheduleDto) {
     return await this.dataSource.transaction(async (manager) => {
@@ -44,6 +46,13 @@ export class ScheduleService {
     const schedule = await this.scheduleRepository.findOne({ where: { id } });
     if (schedule) {
       schedule.status = status.schedule_status;
+
+      await this.mailService.sendScheduleApprovedMail(
+        'khoadaubuu@gmail.com',
+        schedule.room_id,
+        schedule.start_time.toString(),
+        schedule.end_time.toString(),
+      );
       return this.scheduleRepository.save(schedule);
     }
     return null;

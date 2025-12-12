@@ -34,7 +34,6 @@ export class UserService {
       throw new ConflictException('Password is incorrect');
     }
   }
-
   async create(createUserDto: CreateUserDto) {
     const user = this.userRepository.create(createUserDto);
     return this.userRepository.save(user);
