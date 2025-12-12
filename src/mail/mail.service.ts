@@ -8,10 +8,15 @@ export class MailService {
   constructor(
     @InjectQueue('mail_queue')
     private readonly mailQueue: Queue,
-    private readonly userService: UserService,  
+    private readonly userService: UserService,
   ) {}
 
-  async sendScheduleApprovedMail(to: string, roomName: string, start: string, end: string) {
+  async sendScheduleApprovedMail(
+    to: string,
+    roomName: string,
+    start: string,
+    end: string,
+  ) {
     const user = await this.userService.findOne(to);
     const toEmail = user?.email || to;
 
@@ -27,17 +32,36 @@ export class MailService {
     );
   }
 
-  async sendScheduleCancelledMail(to: string, roomName: string, start: string, end: string) {
+  async sendScheduleCancelledMail(
+    to: string,
+    roomName: string,
+    start: string,
+    end: string,
+  ) {
     console.log('Queue job send-cancel-mail:', to);
-
+    const user = await this.userService.findOne(to);
+    const toEmail = user?.email || to;
     await this.mailQueue.add(
       'send-cancel-mail',
-      { to, roomName, start, end },
+      { to: toEmail, roomName, start, end },
       {
         attempts: 3,
         backoff: 3000,
         removeOnComplete: true,
       },
     );
+  }
+  async sendScheduledMail(
+    result: string,
+    to: string,
+    roomName: string,
+    start: string,
+    end: string,
+  ) {
+    if (result === 'approved') {
+      return this.sendScheduleApprovedMail(to, roomName, start, end);
+    } else if (result === 'rejected') {
+      return this.sendScheduleCancelledMail(to, roomName, start, end);
+    }
   }
 }

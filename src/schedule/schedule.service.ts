@@ -13,6 +13,7 @@ import { Schedule } from './entities/schedule.entity';
 import { Repository } from 'typeorm';
 import { DataSource } from 'typeorm';
 import { MailService } from 'src/mail/mail.service';
+import { stat } from 'fs';
 @Injectable()
 export class ScheduleService {
   constructor(
@@ -47,7 +48,8 @@ export class ScheduleService {
     if (schedule) {
       schedule.status = status.schedule_status;
 
-      await this.mailService.sendScheduleApprovedMail(
+      await this.mailService.sendScheduledMail(
+        status.schedule_status,
         schedule.created_by,
         schedule.room_id,
         schedule.start_time.toString(),
