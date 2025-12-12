@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailService } from './mail.service';
 import { MailProcessor } from './mail.processor';
 import { MailController } from './mail.controller';
@@ -8,11 +9,16 @@ import { RedisOptions } from 'ioredis';
 
 @Module({
   imports: [
-    BullModule.forRoot({
-      connection: {
-        url: process.env.REDIS_URL,
-        tls: {},
-      } as RedisOptions,
+    ConfigModule,
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => ({
+        connection: {
+          url: config.get<string>('REDIS_URL'),
+          tls: {},
+        } as RedisOptions,
+      }),
     }),
 
     BullModule.registerQueue({
@@ -21,6 +27,7 @@ import { RedisOptions } from 'ioredis';
 
     UserModule,
   ],
+
   controllers: [MailController],
   providers: [MailService, MailProcessor],
   exports: [MailService],
