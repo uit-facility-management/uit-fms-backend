@@ -40,7 +40,6 @@ export class AuthService {
       if (!user) {
         throw new Error('User not found');
       }
-      console.log('User found:', user);
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         throw new Error('Invalid credentials');

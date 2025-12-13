@@ -51,21 +51,7 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    } else {
-      Object.assign(user, updateUserDto);
-      if (updateUserDto.password) {
-        const password = crypto
-          .createHash('sha1')
-          .update(updateUserDto.password)
-          .digest('hex');
-        user.password = password;
-      }
-    }
-
-    return this.userRepository.save(user);
+    return this.userRepository.update(id, updateUserDto);
   }
 
   async remove(id: string) {
