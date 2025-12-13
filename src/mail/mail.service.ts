@@ -7,17 +7,13 @@ export class MailService {
   constructor(private readonly userService: UserService) {}
 
   private transporter = nodemailer.createTransport({
-    host: process.env.MAIL_HOST || 'smtp.gmail.com',
-    port: Number(process.env.MAIL_PORT) || 587,
-    secure:
-      process.env.MAIL_SECURE === 'true' ||
-      (process.env.MAIL_PORT || '') === '465',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
     },
-    connectionTimeout: 10000,
-    socketTimeout: 10000,
   });
 
   private buildMailTemplate(
@@ -63,18 +59,22 @@ export class MailService {
     const user = await this.userService.findOne(to);
     const toEmail = user?.email || to;
     console.log('Sending approve mail directly:', toEmail);
-    await this.transporter.sendMail({
-      from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
-      to: toEmail,
-      subject: 'Room Booking Approved',
-      html: this.buildMailTemplate(
-        'Room Booking Approved',
-        '#28a745',
-        roomName,
-        start,
-        end,
-      ),
-    });
+    this.transporter
+      .sendMail({
+        from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
+        to: toEmail,
+        subject: 'Room Booking Approved',
+        html: this.buildMailTemplate(
+          'Room Booking Approved',
+          '#28a745',
+          roomName,
+          start,
+          end,
+        ),
+      })
+      .catch((error) => {
+        console.error('Error sending approve mail:', error);
+      });
   }
 
   async sendScheduleCancelledMail(
