@@ -23,14 +23,6 @@ import { RedisOptions } from 'ioredis';
 
     BullModule.registerQueue({
       name: 'mail_queue',
-      defaultJobOptions: {
-        removeOnComplete: true,
-        removeOnFail: true,
-        backoff: {
-          type: 'fixed',
-          delay: 30000,
-        },
-      },
     }),
 
     UserModule,
