@@ -15,13 +15,13 @@ async function bootstrap() {
 
   app.enableCors({
     origin: 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true,
   });
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
   // Connect RMQ microservice to consume events
-  await app.listen(port,'0.0.0.0');
+  await app.listen(port, '0.0.0.0');
 }
 bootstrap();
