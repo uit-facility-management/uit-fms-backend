@@ -22,11 +22,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
   // Connect RMQ microservice to consume events
-  Logger.log(`Server running on http://localhost:${port}`, 'Bootstrap');
-  Logger.log(
-    `Swagger docs available at http://localhost:${port}/api/docs`,
-    'Bootstrap',
-  );
   await app.listen(port,'0.0.0.0');
 }
 bootstrap();

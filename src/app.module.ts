@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { IncidentModule } from './incident/incident.module';
 import { MailModule } from './mail/mail.module';
+import { BorrowTicketModule } from './borrow_ticket/borrow_ticket.module';
+import { DeviceModule } from './device/device.module';
 
 @Module({
   imports: [
@@ -28,19 +30,27 @@ import { MailModule } from './mail/mail.module';
             synchronize: true,
             ssl: { rejectUnauthorized: false },
           };
+        } else {
+          const port = config.get<number>('PORT');
+          console.log(
+            `Server running on http://localhost:${port}`,
+            'Bootstrap',
+          );
+          console.log(
+            `Swagger docs available at http://localhost:${port}/api/docs`,
+            'Bootstrap',
+          );
+          return {
+            type: 'postgres',
+            host: config.get<string>('DB_HOST'),
+            port: config.get<number>('DB_PORT'),
+            username: config.get<string>('DB_USER'),
+            password: config.get<string>('DB_PASS'),
+            database: config.get<string>('DB_NAME'),
+            autoLoadEntities: true,
+            synchronize: true,
+          };
         }
-
-        // MODE: LOCAL DEV
-        return {
-          type: 'postgres',
-          host: config.get<string>('DB_HOST'),
-          port: config.get<number>('DB_PORT'),
-          username: config.get<string>('DB_USER'),
-          password: config.get<string>('DB_PASS'),
-          database: config.get<string>('DB_NAME'),
-          autoLoadEntities: true,
-          synchronize: true,
-        };
       },
     }),
     UserModule,
@@ -51,6 +61,8 @@ import { MailModule } from './mail/mail.module';
     ScheduleModule,
     IncidentModule,
     MailModule,
+    BorrowTicketModule,
+    DeviceModule,
   ],
 })
 export class AppModule {}
