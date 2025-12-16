@@ -28,7 +28,7 @@ export class User {
     example: 'hashedpassword123',
     description: 'Hashed password of the user',
   })
-  @Column({ type: 'varchar', length: 100, select: false })
+  @Column({ type: 'varchar', length: 100 })
   password: string;
 
   @ApiProperty({
