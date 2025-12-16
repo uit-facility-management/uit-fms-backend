@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import { Room } from 'src/room/entities/room.entity';
 import { RoomAssetType } from '../entities/room-asset.entity';
+import { Exclude, Type } from 'class-transformer';
 
 export class CreateRoomAssetDto {
   @ApiProperty({
@@ -32,3 +33,15 @@ export class CreateRoomAssetDto {
   @IsString()
   status: string;
 }
+export class RoomAssetResponseDto {
+  id: string;
+  name: string;
+  status: string;
+
+  @Type(() => Room)
+  room: Room;
+
+  @Exclude()
+  room_id: string;
+}
+

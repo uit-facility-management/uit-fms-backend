@@ -52,7 +52,7 @@ export class Room {
     example: '550e8400-e29b-41d4-a716-446655440000',
     description: 'Unique identifier for the building',
   })
-  @Column('uuid')
+  @Column('uuid',{select:false})
   building_id: string;
 
   //realationships

@@ -66,12 +66,17 @@ export class ScheduleService {
     return schedules;
   }
   async findAll() {
-    const schedules = await this.scheduleRepository.find();
+    const schedules = await this.scheduleRepository.find({
+      relations: ['room', 'createdBy'],
+    });
     return schedules;
   }
 
   async findOne(id: string) {
-    const schedule = await this.scheduleRepository.findOne({ where: { id } });
+    const schedule = await this.scheduleRepository.findOne({
+      where: { id },
+      relations: ['room', 'createdBy'],
+    });
     return schedule;
   }
 

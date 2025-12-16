@@ -32,7 +32,7 @@ export class RoomAsset {
     example: '550e8400-e29b-41d4-a716-446655440000',
     description: 'Unique identifier for the room',
   })
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid',select:false })
   room_id: string;
 
   @ApiProperty({

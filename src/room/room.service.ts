@@ -56,14 +56,17 @@ export class RoomService {
     return this.scheduleService.findByRoom(room_id);
   }
   async findAll() {
-    return this.roomRepository.find();
+    const rooms = await this.roomRepository.find({
+      relations: ['building'],
+    });
+    return rooms;
   }
   async findByBuilding(building_id: string) {
     return this.roomRepository.find({ where: { building_id } });
   }
 
   async findOne(id: string) {
-    return this.roomRepository.findOne({ where: { id } });
+    return this.roomRepository.findOne({ where: { id }, relations: ['building'] });
   }
   async update(id: string, updateRoomDto: UpdateRoomDto) {
     await this.roomRepository.update(id, updateRoomDto);

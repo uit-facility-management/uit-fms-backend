@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateRoomAssetDto } from './dto/create-room-asset.dto';
+import { CreateRoomAssetDto, RoomAssetResponseDto } from './dto/create-room-asset.dto';
 import { UpdateRoomAssetDto } from './dto/update-room-asset.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomAsset } from './entities/room-asset.entity';
 import { Repository } from 'typeorm';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class RoomAssetsService {
@@ -19,11 +20,12 @@ export class RoomAssetsService {
     return this.roomAssetsRepository.find({ where: { room_id } });
   }
   async findAll() {
-    return this.roomAssetsRepository.find();
+    const roomAssets = await this.roomAssetsRepository.find({ relations: ['room', 'room.building'] });
+    return roomAssets;
   }
 
   async findOne(id: string) {
-    return this.roomAssetsRepository.findOneBy({ id });
+    return this.roomAssetsRepository.findOne({ where: { id }, relations: ['room'] });
   }
 
   async update(id: string, updateRoomAssetDto: UpdateRoomAssetDto) {
