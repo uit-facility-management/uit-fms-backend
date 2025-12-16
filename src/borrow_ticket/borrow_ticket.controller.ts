@@ -30,6 +30,10 @@ export class BorrowTicketController {
     return this.borrowTicketService.findOne(id);
   }
 
+  @Patch('return/:id')
+  returnDevice(@Param('id') id: string) {
+    return this.borrowTicketService.returnDevice(id);
+  }
   @Patch(':id')
   update(
     @Param('id') id: string,
