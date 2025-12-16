@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Device } from 'src/device/entities/device.entity';
 import { Room } from 'src/room/entities/room.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   Entity,
   JoinColumn,
-  OneToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -104,11 +105,15 @@ export class BorrowTicket {
 
   //relations
 
-  @OneToMany(() => User, (user) => user.id)
+  @ManyToOne(() => User, (user) => user.id)
   @JoinColumn({ name: 'create_by' })
   user: User;
 
-  @OneToMany(() => Room, (room) => room.id)
+  @ManyToOne(() => Room, (room) => room.id)
   @JoinColumn({ name: 'room_id' })
   room: Room;
+
+  @ManyToOne(() => Device, (device) => device.id)
+  @JoinColumn({ name: 'device_id' })
+  device: Device;
 }

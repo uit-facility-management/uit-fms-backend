@@ -1,26 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateBorrowTicketDto } from './dto/create-borrow_ticket.dto';
 import { UpdateBorrowTicketDto } from './dto/update-borrow_ticket.dto';
+import { BorrowTicket } from './entities/borrow_ticket.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class BorrowTicketService {
+  constructor(
+    @InjectRepository(BorrowTicket)
+    private readonly borrowTicketRepository: Repository<BorrowTicket>,
+  ) {}
   create(createBorrowTicketDto: CreateBorrowTicketDto) {
-    return 'This action adds a new borrowTicket';
+    const borrowTicket = this.borrowTicketRepository.create(
+      createBorrowTicketDto,
+    );
+    return this.borrowTicketRepository.save(borrowTicket);
   }
 
   findAll() {
-    return `This action returns all borrowTicket`;
+    return this.borrowTicketRepository.find({relations: ['device', 'room', 'user']});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} borrowTicket`;
+  findOne(id: string) {
+    return this.borrowTicketRepository.findOne({
+      where: { id },
+      relations: ['device', 'room', 'user'],
+    });
   }
 
-  update(id: number, updateBorrowTicketDto: UpdateBorrowTicketDto) {
-    return `This action updates a #${id} borrowTicket`;
+  update(id: string, updateBorrowTicketDto: UpdateBorrowTicketDto) {
+    const updatedBorrowTicket = this.borrowTicketRepository.save({
+      id,
+      ...updateBorrowTicketDto,
+    });
+    return updatedBorrowTicket;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} borrowTicket`;
+  remove(id: string) {
+    const result = this.borrowTicketRepository.delete(id);
+    return result;
   }
 }

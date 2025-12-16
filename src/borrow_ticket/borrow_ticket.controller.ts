@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { BorrowTicketService } from './borrow_ticket.service';
 import { CreateBorrowTicketDto } from './dto/create-borrow_ticket.dto';
 import { UpdateBorrowTicketDto } from './dto/update-borrow_ticket.dto';
@@ -19,16 +27,19 @@ export class BorrowTicketController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.borrowTicketService.findOne(+id);
+    return this.borrowTicketService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBorrowTicketDto: UpdateBorrowTicketDto) {
-    return this.borrowTicketService.update(+id, updateBorrowTicketDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateBorrowTicketDto: UpdateBorrowTicketDto,
+  ) {
+    return this.borrowTicketService.update(id, updateBorrowTicketDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.borrowTicketService.remove(+id);
+    return this.borrowTicketService.remove(id);
   }
 }
