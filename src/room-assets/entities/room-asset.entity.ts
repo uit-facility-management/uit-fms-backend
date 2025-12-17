@@ -7,7 +7,11 @@ export enum RoomAssetType {
   STATIONERY = 'Stationery',
   OTHER = 'Other',
 }
-
+export enum RoomAssetStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  MAINTENANCE = 'MAINTENANCE',
+}
 @Entity()
 export class RoomAsset {
   @ApiProperty({
@@ -40,7 +44,7 @@ export class RoomAsset {
     description: 'Status of the room asset',
   })
   @Column({ type: 'varchar', length: 50 })
-  status: string;
+  status: RoomAssetStatus;
 
   //relationships
   @ManyToOne(() => Room, (room) => room.id)

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 import { Room } from 'src/room/entities/room.entity';
-import { RoomAssetType } from '../entities/room-asset.entity';
+import { RoomAssetStatus, RoomAssetType } from '../entities/room-asset.entity';
 import { Exclude, Type } from 'class-transformer';
 
 export class CreateRoomAssetDto {
@@ -16,7 +16,7 @@ export class CreateRoomAssetDto {
     example: 'Electronics',
     description: 'Type of the room asset',
   })
-  @IsString()
+  @IsEnum(RoomAssetType)
   type: RoomAssetType;
 
   @ApiProperty({
@@ -27,16 +27,16 @@ export class CreateRoomAssetDto {
   room_id: string;
 
   @ApiProperty({
-    example: 'available',
+    example: 'ACTIVE',
     description: 'Status of the room asset',
   })
-  @IsString()
-  status: string;
+  @IsEnum(RoomAssetStatus)
+  status: RoomAssetStatus;
 }
 export class RoomAssetResponseDto {
   id: string;
   name: string;
-  status: string;
+  status: RoomAssetStatus;
 
   @Type(() => Room)
   room: Room;
@@ -44,4 +44,3 @@ export class RoomAssetResponseDto {
   @Exclude()
   room_id: string;
 }
-
