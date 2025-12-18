@@ -9,7 +9,10 @@ export class MailService implements OnModuleInit {
   private transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
-    secure: false, // Phải là false cho port 587
+    secure: false, // Port 587 dùng STARTTLS
+    pool: true, // <--- QUAN TRỌNG: Giữ kết nối mở để tái sử dụng
+    maxConnections: 1, // <--- QUAN TRỌNG: Giới hạn 1 kết nối để tránh bị Google chặn
+    rateLimit: 1, // Giới hạn gửi tối đa 1 mail/giây để an toàn cho tài khoản free
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
@@ -18,8 +21,8 @@ export class MailService implements OnModuleInit {
       ciphers: 'SSLv3',
       rejectUnauthorized: false,
     },
-    connectionTimeout: 30000, // 30s
-    greetingTimeout: 10000,
+    connectionTimeout: 10000, // 10s là đủ nếu mạng ổn
+    greetingTimeout: 5000,
   });
 
   private buildMailTemplate(
@@ -57,28 +60,58 @@ export class MailService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    // BỎ verify - để lazy connect như queue
-    console.log('✓ Mail service initialized (lazy connection)');
+    // Verify kết nối ngay khi khởi động để đảm bảo config đúng
+    try {
+      await this.transporter.verify();
+      console.log('✓ Mail service ready (Pooled connection)');
+    } catch (error) {
+      console.error('✗ Mail service config error:', error.message);
+    }
   }
 
   private async sendMailAsync(to: string, subject: string, html: string) {
-    // Thay vì setImmediate, hãy dùng Promise thông thường nhưng không 'await' ở ngoài
-    this.transporter
-      .sendMail({
+    try {
+      // Dùng await ở đây để bắt lỗi chính xác, nhưng hàm cha sẽ gọi mà không await
+      await this.transporter.sendMail({
         from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
         to: to,
         subject: subject,
         html: html,
-      })
-      .then(() => console.log('✓ Email sent:', to))
-      .catch((error) => {
-        console.error('✗ Email failed:', {
-          to,
-          code: error.code, // Xem mã lỗi (ví dụ: ETIMEDOUT)
-          command: error.command,
-          message: error.message,
-        });
       });
+      console.log('✓ Email sent:', to);
+    } catch (error: any) {
+      console.error('✗ Email failed:', {
+        to,
+        code: error.code,
+        command: error.command,
+        message: error.message,
+      });
+    }
+  }
+
+  // Helper để lấy email và gửi
+  private async processMailLogic(
+    to: string,
+    subject: string,
+    title: string,
+    color: string,
+    roomName: string,
+    start: string,
+    end: string,
+  ) {
+    try {
+      const user = await this.userService.findOne(to);
+      const toEmail = user?.email || to;
+
+      // Gọi gửi mail
+      await this.sendMailAsync(
+        toEmail,
+        subject,
+        this.buildMailTemplate(title, color, roomName, start, end),
+      );
+    } catch (err) {
+      console.error('Error in processMailLogic:', err);
+    }
   }
 
   sendScheduleApprovedMail(
@@ -87,23 +120,16 @@ export class MailService implements OnModuleInit {
     start: string,
     end: string,
   ) {
-    this.userService
-      .findOne(to)
-      .then((user) => {
-        const toEmail = user?.email || to;
-        return this.sendMailAsync(
-          toEmail,
-          'Room Booking Approved',
-          this.buildMailTemplate(
-            'Room Booking Approved',
-            '#28a745',
-            roomName,
-            start,
-            end,
-          ),
-        );
-      })
-      .catch((err) => console.error('Error resolving user:', err));
+    // Gọi hàm async nhưng KHÔNG await để code chạy non-blocking (Fire & Forget an toàn)
+    this.processMailLogic(
+      to,
+      'Room Booking Approved',
+      'Room Booking Approved',
+      '#28a745',
+      roomName,
+      start,
+      end,
+    );
   }
 
   sendScheduleCancelledMail(
@@ -112,23 +138,15 @@ export class MailService implements OnModuleInit {
     start: string,
     end: string,
   ) {
-    this.userService
-      .findOne(to)
-      .then((user) => {
-        const toEmail = user?.email || to;
-        return this.sendMailAsync(
-          toEmail,
-          'Room Booking Cancelled',
-          this.buildMailTemplate(
-            'Room Booking Cancelled',
-            '#dc3545',
-            roomName,
-            start,
-            end,
-          ),
-        );
-      })
-      .catch((err) => console.error('Error resolving user:', err));
+    this.processMailLogic(
+      to,
+      'Room Booking Cancelled',
+      'Room Booking Cancelled',
+      '#dc3545',
+      roomName,
+      start,
+      end,
+    );
   }
 
   sendScheduledMail(
