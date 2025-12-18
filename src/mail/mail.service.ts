@@ -8,19 +8,15 @@ export class MailService implements OnModuleInit {
 
   private transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST || 'smtp.gmail.com',
-    port: Number(process.env.MAIL_PORT) || 587,
-    secure:
-      process.env.MAIL_SECURE === 'true' ||
-      (process.env.MAIL_PORT || '') === '465',
+    port: 465, // Dùng port 465 như code queue cũ
+    secure: true, // true cho port 465
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
     },
-    connectionTimeout: 10000,
-    socketTimeout: 10000,
+    // BỎ connectionTimeout và socketTimeout ngắn
+    // Để mặc định 60s như code queue
   });
-
-  private isMailAvailable = false;
 
   private buildMailTemplate(
     title: string,
@@ -57,50 +53,30 @@ export class MailService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    try {
-      await Promise.race([
-        this.transporter.verify(),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Verification timeout')), 5000),
-        ),
-      ]);
-      this.isMailAvailable = true;
-      console.log('✓ Mail service ready');
-    } catch (error: any) {
-      this.isMailAvailable = false;
-      console.warn('⚠ Mail service unavailable:', error?.message);
-      console.warn('Emails will be logged but not sent');
-    }
+    // BỎ verify - để lazy connect như queue
+    console.log('✓ Mail service initialized (lazy connection)');
   }
 
-  /**
-   * Send email asynchronously without blocking
-   * Fire and forget - errors are logged but don't throw
-   */
-  private async sendMailAsync(mailOptions: any) {
-    if (!this.isMailAvailable) {
-      console.log('📧 [SKIPPED] Email not sent (service unavailable):', {
-        to: mailOptions.to,
-        subject: mailOptions.subject,
-      });
-      return;
-    }
-
-    // Fire and forget - không await
+  private async sendMailAsync(to: string, subject: string, html: string) {
+    // Fire and forget với try-catch
     setImmediate(async () => {
       try {
-        await this.transporter.sendMail(mailOptions);
-        console.log('✓ Email sent:', mailOptions.to);
+        await this.transporter.sendMail({
+          from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
+          to: to,
+          subject: subject,
+          html: html,
+        });
+        console.log('✓ Email sent:', to);
       } catch (error: any) {
         console.error('✗ Email failed:', {
-          to: mailOptions.to,
+          to,
           error: error?.message,
         });
       }
     });
   }
 
-  // Remove async - không cần await nữa
   sendScheduleApprovedMail(
     to: string,
     roomName: string,
@@ -111,20 +87,19 @@ export class MailService implements OnModuleInit {
       .findOne(to)
       .then((user) => {
         const toEmail = user?.email || to;
-        return this.sendMailAsync({
-          from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
-          to: toEmail,
-          subject: 'Room Booking Approved',
-          html: this.buildMailTemplate(
+        return this.sendMailAsync(
+          toEmail,
+          'Room Booking Approved',
+          this.buildMailTemplate(
             'Room Booking Approved',
             '#28a745',
             roomName,
             start,
             end,
           ),
-        });
+        );
       })
-      .catch((err) => console.error('Error resolving user email:', err));
+      .catch((err) => console.error('Error resolving user:', err));
   }
 
   sendScheduleCancelledMail(
@@ -137,20 +112,19 @@ export class MailService implements OnModuleInit {
       .findOne(to)
       .then((user) => {
         const toEmail = user?.email || to;
-        return this.sendMailAsync({
-          from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
-          to: toEmail,
-          subject: 'Room Booking Cancelled',
-          html: this.buildMailTemplate(
+        return this.sendMailAsync(
+          toEmail,
+          'Room Booking Cancelled',
+          this.buildMailTemplate(
             'Room Booking Cancelled',
             '#dc3545',
             roomName,
             start,
             end,
           ),
-        });
+        );
       })
-      .catch((err) => console.error('Error resolving user email:', err));
+      .catch((err) => console.error('Error resolving user:', err));
   }
 
   sendScheduledMail(
