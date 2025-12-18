@@ -48,7 +48,7 @@ export class ScheduleService {
     if (schedule) {
       schedule.status = status.schedule_status;
 
-      await this.mailService.sendScheduledMail(
+      this.mailService.sendScheduledMail(
         status.schedule_status,
         schedule.created_by,
         schedule.room_id,

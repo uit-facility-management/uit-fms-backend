@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as nodemailer from 'nodemailer';
+
 @Injectable()
 export class MailService implements OnModuleInit {
   constructor(private readonly userService: UserService) {}
@@ -18,6 +19,8 @@ export class MailService implements OnModuleInit {
     connectionTimeout: 10000,
     socketTimeout: 10000,
   });
+
+  private isMailAvailable = false;
 
   private buildMailTemplate(
     title: string,
@@ -55,77 +58,102 @@ export class MailService implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      await this.transporter.verify();
-      const host = process.env.MAIL_HOST || 'smtp.gmail.com';
-      const port = Number(process.env.MAIL_PORT) || 587;
-      const secure =
-        process.env.MAIL_SECURE === 'true' ||
-        (process.env.MAIL_PORT || '') === '465';
-      console.log('Mail transporter verified', { host, port, secure });
+      await Promise.race([
+        this.transporter.verify(),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Verification timeout')), 5000),
+        ),
+      ]);
+      this.isMailAvailable = true;
+      console.log('✓ Mail service ready');
     } catch (error: any) {
-      console.error(
-        'Mail transporter verification failed:',
-        error?.message || error,
-      );
+      this.isMailAvailable = false;
+      console.warn('⚠ Mail service unavailable:', error?.message);
+      console.warn('Emails will be logged but not sent');
     }
   }
 
-  async sendScheduleApprovedMail(
+  /**
+   * Send email asynchronously without blocking
+   * Fire and forget - errors are logged but don't throw
+   */
+  private async sendMailAsync(mailOptions: any) {
+    if (!this.isMailAvailable) {
+      console.log('📧 [SKIPPED] Email not sent (service unavailable):', {
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+      });
+      return;
+    }
+
+    // Fire and forget - không await
+    setImmediate(async () => {
+      try {
+        await this.transporter.sendMail(mailOptions);
+        console.log('✓ Email sent:', mailOptions.to);
+      } catch (error: any) {
+        console.error('✗ Email failed:', {
+          to: mailOptions.to,
+          error: error?.message,
+        });
+      }
+    });
+  }
+
+  // Remove async - không cần await nữa
+  sendScheduleApprovedMail(
     to: string,
     roomName: string,
     start: string,
     end: string,
   ) {
-    const user = await this.userService.findOne(to);
-    const toEmail = user?.email || to;
-    console.log('Sending approve mail:', toEmail);
-    try {
-      await this.transporter.sendMail({
-        from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
-        to: toEmail,
-        subject: 'Room Booking Approved',
-        html: this.buildMailTemplate(
-          'Room Booking Approved',
-          '#28a745',
-          roomName,
-          start,
-          end,
-        ),
-      });
-    } catch (error: any) {
-      console.error('Error sending approve mail:', error?.message || error);
-      throw error;
-    }
+    this.userService
+      .findOne(to)
+      .then((user) => {
+        const toEmail = user?.email || to;
+        return this.sendMailAsync({
+          from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
+          to: toEmail,
+          subject: 'Room Booking Approved',
+          html: this.buildMailTemplate(
+            'Room Booking Approved',
+            '#28a745',
+            roomName,
+            start,
+            end,
+          ),
+        });
+      })
+      .catch((err) => console.error('Error resolving user email:', err));
   }
 
-  async sendScheduleCancelledMail(
+  sendScheduleCancelledMail(
     to: string,
     roomName: string,
     start: string,
     end: string,
   ) {
-    console.log('Sending cancel mail:', to);
-    const user = await this.userService.findOne(to);
-    const toEmail = user?.email || to;
-    try {
-      await this.transporter.sendMail({
-        from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
-        to: toEmail,
-        subject: 'Room Booking Cancelled',
-        html: this.buildMailTemplate(
-          'Room Booking Cancelled',
-          '#dc3545',
-          roomName,
-          start,
-          end,
-        ),
-      });
-    } catch (error: any) {
-      console.error('Error sending cancel mail:', error?.message || error);
-      throw error;
-    }
+    this.userService
+      .findOne(to)
+      .then((user) => {
+        const toEmail = user?.email || to;
+        return this.sendMailAsync({
+          from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
+          to: toEmail,
+          subject: 'Room Booking Cancelled',
+          html: this.buildMailTemplate(
+            'Room Booking Cancelled',
+            '#dc3545',
+            roomName,
+            start,
+            end,
+          ),
+        });
+      })
+      .catch((err) => console.error('Error resolving user email:', err));
   }
-  async sendScheduledMail(
+
+  sendScheduledMail(
     result: string,
     to: string,
     roomName: string,
@@ -133,9 +161,9 @@ export class MailService implements OnModuleInit {
     end: string,
   ) {
     if (result === 'approved') {
-      return this.sendScheduleApprovedMail(to, roomName, start, end);
+      this.sendScheduleApprovedMail(to, roomName, start, end);
     } else if (result === 'rejected') {
-      return this.sendScheduleCancelledMail(to, roomName, start, end);
+      this.sendScheduleCancelledMail(to, roomName, start, end);
     }
   }
 }
