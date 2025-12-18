@@ -17,7 +17,10 @@ export class MailService implements OnModuleInit {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
     },
-    connectionTimeout: 20000, // Tăng lên 20s
+    tls: {
+      rejectUnauthorized: false, // Giúp tránh lỗi chứng chỉ trên môi trường deploy
+    },
+    connectionTimeout: 200000, // Tăng lên 20s
   });
 
   private buildMailTemplate(
