@@ -8,14 +8,16 @@ export class MailService implements OnModuleInit {
 
   private transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST || 'smtp.gmail.com',
-    port: 465, // Dùng port 465 như code queue cũ
-    secure: true, // true cho port 465
+    port: 587,
+    secure: false,
+    pool: true, // Sử dụng kết nối lâu dài
+    maxConnections: 5, // Giới hạn số kết nối đồng thời
+    maxMessages: 100, // Số mail tối đa mỗi kết nối
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
     },
-    // BỎ connectionTimeout và socketTimeout ngắn
-    // Để mặc định 60s như code queue
+    connectionTimeout: 20000, // Tăng lên 20s
   });
 
   private buildMailTemplate(
@@ -58,23 +60,23 @@ export class MailService implements OnModuleInit {
   }
 
   private async sendMailAsync(to: string, subject: string, html: string) {
-    // Fire and forget với try-catch
-    setImmediate(async () => {
-      try {
-        await this.transporter.sendMail({
-          from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
-          to: to,
-          subject: subject,
-          html: html,
-        });
-        console.log('✓ Email sent:', to);
-      } catch (error: any) {
+    // Thay vì setImmediate, hãy dùng Promise thông thường nhưng không 'await' ở ngoài
+    this.transporter
+      .sendMail({
+        from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
+        to: to,
+        subject: subject,
+        html: html,
+      })
+      .then(() => console.log('✓ Email sent:', to))
+      .catch((error) => {
         console.error('✗ Email failed:', {
           to,
-          error: error?.message,
+          code: error.code, // Xem mã lỗi (ví dụ: ETIMEDOUT)
+          command: error.command,
+          message: error.message,
         });
-      }
-    });
+      });
   }
 
   sendScheduleApprovedMail(
