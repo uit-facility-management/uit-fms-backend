@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as nodemailer from 'nodemailer';
 @Injectable()
-export class MailService {
+export class MailService implements OnModuleInit {
   constructor(private readonly userService: UserService) {}
 
   private transporter = nodemailer.createTransport({
@@ -53,6 +53,23 @@ export class MailService {
     `;
   }
 
+  async onModuleInit() {
+    try {
+      await this.transporter.verify();
+      const host = process.env.MAIL_HOST || 'smtp.gmail.com';
+      const port = Number(process.env.MAIL_PORT) || 587;
+      const secure =
+        process.env.MAIL_SECURE === 'true' ||
+        (process.env.MAIL_PORT || '') === '465';
+      console.log('Mail transporter verified', { host, port, secure });
+    } catch (error: any) {
+      console.error(
+        'Mail transporter verification failed:',
+        error?.message || error,
+      );
+    }
+  }
+
   async sendScheduleApprovedMail(
     to: string,
     roomName: string,
@@ -61,19 +78,24 @@ export class MailService {
   ) {
     const user = await this.userService.findOne(to);
     const toEmail = user?.email || to;
-    console.log('Sending approve mail directly:', toEmail);
-    await this.transporter.sendMail({
-      from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
-      to: toEmail,
-      subject: 'Room Booking Approved',
-      html: this.buildMailTemplate(
-        'Room Booking Approved',
-        '#28a745',
-        roomName,
-        start,
-        end,
-      ),
-    });
+    console.log('Sending approve mail:', toEmail);
+    try {
+      await this.transporter.sendMail({
+        from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
+        to: toEmail,
+        subject: 'Room Booking Approved',
+        html: this.buildMailTemplate(
+          'Room Booking Approved',
+          '#28a745',
+          roomName,
+          start,
+          end,
+        ),
+      });
+    } catch (error: any) {
+      console.error('Error sending approve mail:', error?.message || error);
+      throw error;
+    }
   }
 
   async sendScheduleCancelledMail(
@@ -82,21 +104,26 @@ export class MailService {
     start: string,
     end: string,
   ) {
-    console.log('Queue job send-cancel-mail:', to);
+    console.log('Sending cancel mail:', to);
     const user = await this.userService.findOne(to);
     const toEmail = user?.email || to;
-    await this.transporter.sendMail({
-      from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
-      to: toEmail,
-      subject: 'Room Booking Cancelled',
-      html: this.buildMailTemplate(
-        'Room Booking Cancelled',
-        '#dc3545',
-        roomName,
-        start,
-        end,
-      ),
-    });
+    try {
+      await this.transporter.sendMail({
+        from: process.env.GMAIL_FROM || process.env.GMAIL_USER,
+        to: toEmail,
+        subject: 'Room Booking Cancelled',
+        html: this.buildMailTemplate(
+          'Room Booking Cancelled',
+          '#dc3545',
+          roomName,
+          start,
+          end,
+        ),
+      });
+    } catch (error: any) {
+      console.error('Error sending cancel mail:', error?.message || error);
+      throw error;
+    }
   }
   async sendScheduledMail(
     result: string,
