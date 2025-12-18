@@ -4,6 +4,7 @@ import { UpdateIncidentDto } from './dto/update-incident.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Incident, IncidentStatus } from './entities/incident.entity';
 import { Repository } from 'typeorm';
+import { RoomAsset } from 'src/room-assets/entities/room-asset.entity';
 
 @Injectable()
 export class IncidentService {
@@ -20,7 +21,9 @@ export class IncidentService {
     return this.incidentRepository.find({ where: { room_id } });
   }
   async findAll() {
-    return this.incidentRepository.find();
+    return this.incidentRepository.find({
+      relations: ['room_asset', 'created_user'],
+    });
   }
 
   async findOne(id: string) {

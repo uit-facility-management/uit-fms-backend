@@ -4,13 +4,6 @@ import { IsEnum, IsString } from 'class-validator';
 
 export class CreateIncidentDto {
   @ApiProperty({
-    example: 'Leaking Faucet',
-    description: 'Title of the incident',
-  })
-  @IsString()
-  title: string;
-
-  @ApiProperty({
     example: 'Leaking faucet in the restroom',
     description: 'Description of the incident',
   })

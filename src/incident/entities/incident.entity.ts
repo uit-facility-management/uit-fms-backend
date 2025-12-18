@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { RoomAsset } from 'src/room-assets/entities/room-asset.entity';
+import { User } from 'src/user/entities/user.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export enum IncidentStatus {
   PENDING = 'pending',
@@ -14,12 +23,6 @@ export class Incident {
   })
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @ApiProperty({
-    example: 'Leaking Faucet',
-    description: 'Title of the incident',
-  })
-  @Column('text')
-  title: string;
   @ApiProperty({
     example: '550e8400-e29b-41d4-a716-446655440001',
     description: 'Unique identifier for the room associated with the incident',
@@ -55,4 +58,27 @@ export class Incident {
   })
   @Column('enum', { enum: IncidentStatus, default: IncidentStatus.PENDING })
   status: IncidentStatus;
+
+  @ApiProperty({
+    example: '2023-01-01T00:00:00Z',
+    description: 'Timestamp when the incident was created',
+  })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @ApiProperty({
+    example: '2023-01-02T00:00:00Z',
+    description: 'Timestamp when the incident was last updated',
+  })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
+
+  //relations
+  @OneToOne(() => RoomAsset, (roomAsset) => roomAsset.id)
+  @JoinColumn({ name: 'room_asset_id' })
+  room_asset: RoomAsset;
+
+  @OneToOne(() => User, (user) => user.id)
+  @JoinColumn({ name: 'created_by' })
+  created_user: User;
 }
