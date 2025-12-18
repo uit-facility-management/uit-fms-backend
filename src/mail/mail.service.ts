@@ -7,20 +7,19 @@ export class MailService implements OnModuleInit {
   constructor(private readonly userService: UserService) {}
 
   private transporter = nodemailer.createTransport({
-    host: process.env.MAIL_HOST || 'smtp.gmail.com',
+    host: 'smtp.gmail.com',
     port: 587,
-    secure: false,
-    pool: true, // Sử dụng kết nối lâu dài
-    maxConnections: 5, // Giới hạn số kết nối đồng thời
-    maxMessages: 100, // Số mail tối đa mỗi kết nối
+    secure: false, // Phải là false cho port 587
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
     },
     tls: {
-      rejectUnauthorized: false, // Giúp tránh lỗi chứng chỉ trên môi trường deploy
+      ciphers: 'SSLv3',
+      rejectUnauthorized: false,
     },
-    connectionTimeout: 200000, // Tăng lên 20s
+    connectionTimeout: 30000, // 30s
+    greetingTimeout: 10000,
   });
 
   private buildMailTemplate(
