@@ -42,7 +42,7 @@ export class MailService {
 
   // 2. Hàm xử lý trung gian: Tìm User -> Đẩy vào Queue
   private async processMailLogic(
-    userIdOrEmail: string,
+    toEmail: string,
     subject: string,
     title: string,
     color: string,
@@ -51,10 +51,6 @@ export class MailService {
     end: string,
   ) {
     try {
-      const user = await this.userService.findOne(userIdOrEmail);
-      const toEmail = user?.email || userIdOrEmail;
-      this.logger.log('user: ' + JSON.stringify(user));
-      // Tạo nội dung HTML
       const htmlContent = this.buildMailTemplate(
         title,
         color,
@@ -78,6 +74,7 @@ export class MailService {
     start: string,
     end: string,
   ) {
+     this.logger.log('sendScheduleApprovedMail to: ' + to);
     await this.processMailLogic(
       to,
       'Room Booking Approved',
@@ -113,6 +110,7 @@ export class MailService {
     start: string,
     end: string,
   ) {
+     this.logger.log('sendScheduledMail to: ' + to + ' result: ' + result);
     if (result === 'approved') {
       await this.sendScheduleApprovedMail(to, roomName, start, end);
     } else if (result === 'rejected') {

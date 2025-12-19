@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
@@ -16,11 +17,13 @@ import { MailService } from 'src/mail/mail.service';
 import { stat } from 'fs';
 @Injectable()
 export class ScheduleService {
+  private readonly logger = new Logger(ScheduleService.name);
   constructor(
     @InjectRepository(Schedule)
     private readonly scheduleRepository: Repository<Schedule>,
     private readonly dataSource: DataSource,
     private readonly mailService: MailService,
+    
   ) {}
   async create(createScheduleDto: CreateScheduleDto) {
     return await this.dataSource.transaction(async (manager) => {
@@ -44,13 +47,12 @@ export class ScheduleService {
   }
 
   async updateStatus(id: string, status: UpdateScheduleStatusDto) {
-    const schedule = await this.scheduleRepository.findOne({ where: { id } });
+    const schedule = await this.scheduleRepository.findOne({ where: { id },relations: ['createdBy'] });
     if (schedule) {
       schedule.status = status.schedule_status;
-
       this.mailService.sendScheduledMail(
         status.schedule_status,
-        schedule.created_by,
+        schedule.createdBy.email,
         schedule.room_id,
         schedule.start_time.toString(),
         schedule.end_time.toString(),
