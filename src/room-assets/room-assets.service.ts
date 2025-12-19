@@ -16,7 +16,7 @@ export class RoomAssetsService {
     return this.roomAssetsRepository.save(roomAsset);
   }
   async findByRoom(room_id: string) {
-    return this.roomAssetsRepository.find({ where: { room_id } });
+    return this.roomAssetsRepository.find({ where: { room: { id: room_id } }, relations: ['room'] });
   }
   async findAll() {
     const roomAssets = await this.roomAssetsRepository.find({ relations: ['room', 'room.building'] });

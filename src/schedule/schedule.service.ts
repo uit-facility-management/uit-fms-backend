@@ -64,6 +64,7 @@ export class ScheduleService {
   async findByRoom(room_id: string) {
     const schedules = await this.scheduleRepository.find({
       where: { room_id },
+      relations: ['room', 'createdBy'],
     });
     return schedules;
   }

@@ -18,11 +18,11 @@ export class IncidentService {
   }
 
   async findByRoom(room_id: string) {
-    return this.incidentRepository.find({ where: { room_id } });
+    return this.incidentRepository.find({ where: { room_asset: { room: { id: room_id } } },relations: ['room_asset','room_asset.room', 'created_user'] });
   }
   async findAll() {
     return this.incidentRepository.find({
-      relations: ['room_asset', 'created_user'],
+      relations: ['room_asset','room_asset.room', 'created_user'],
     });
   }
 

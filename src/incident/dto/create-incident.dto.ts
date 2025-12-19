@@ -11,13 +11,6 @@ export class CreateIncidentDto {
   description: string;
 
   @ApiProperty({
-    example: '550e8400-e29b-41d4-a716-446655440001',
-    description: 'Unique identifier for the room associated with the incident',
-  })
-  @IsString()
-  room_id: string;
-
-  @ApiProperty({
     example: '550e8400-e29b-41d4-a716-446655440002',
     description:
       'Unique identifier for the room asset associated with the incident',

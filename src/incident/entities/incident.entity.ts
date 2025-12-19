@@ -24,13 +24,6 @@ export class Incident {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @ApiProperty({
-    example: '550e8400-e29b-41d4-a716-446655440001',
-    description: 'Unique identifier for the room associated with the incident',
-  })
-  @Column('uuid')
-  room_id: string;
-
-  @ApiProperty({
     example: 'Leaking faucet in the restroom',
     description: 'Description of the incident',
   })
