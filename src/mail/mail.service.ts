@@ -8,7 +8,7 @@ export class MailService {
 
   constructor(
     private readonly userService: UserService,
-    private readonly mailQueueService: MailQueueService, 
+    private readonly mailQueueService: MailQueueService, // Inject Queue vào đây
   ) {}
 
   // 1. Hàm build HTML giữ nguyên (Logic giao diện)
@@ -55,6 +55,7 @@ export class MailService {
       const user = await this.userService.findOne(userIdOrEmail);
       const toEmail = user?.email || userIdOrEmail;
 
+      // Tạo nội dung HTML
       const htmlContent = this.buildMailTemplate(
         title,
         color,
@@ -62,6 +63,9 @@ export class MailService {
         start,
         end,
       );
+
+      // ĐẨY VÀO QUEUE (Thay vì gửi trực tiếp)
+      // Việc này chỉ mất vài ms (insert vào DB), không bị block
       await this.mailQueueService.addEmailJob(toEmail, subject, htmlContent);
 
       this.logger.log(`✓ Đã thêm job gửi mail cho: ${toEmail} vào hàng đợi.`);

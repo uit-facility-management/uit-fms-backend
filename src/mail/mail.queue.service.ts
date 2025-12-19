@@ -25,7 +25,8 @@ export class MailQueueService implements OnModuleInit, OnModuleDestroy {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_APP_PASSWORD,
       },
-    });
+      family: 4, // Use IPv4 to avoid IPv6 issues
+    } as any);
 
     // 2. Config DB
     const dbConfig = this.getDbConfig();
