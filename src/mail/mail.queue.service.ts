@@ -26,7 +26,7 @@ export class MailQueueService implements OnModuleInit, OnModuleDestroy {
   }
 
   async addEmailJob(to: string, subject: string, html: string) {
-    return await this.boss.send('send-email', { to, subject, html });
+    return await this.boss.send('mail_queue', { to, subject, html });
   }
 
   async onModuleDestroy() {
