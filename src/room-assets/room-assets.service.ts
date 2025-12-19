@@ -4,7 +4,6 @@ import { UpdateRoomAssetDto } from './dto/update-room-asset.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomAsset } from './entities/room-asset.entity';
 import { Repository } from 'typeorm';
-import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class RoomAssetsService {

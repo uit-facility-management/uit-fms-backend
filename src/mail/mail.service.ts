@@ -1,13 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-import sgMail from '@sendgrid/mail';
+import { MailQueueService } from './mail.queue.service'; // Import Queue Service
+
 @Injectable()
 export class MailService {
-  constructor(private readonly userService: UserService) {
-    // Cấu hình API Key ngay khi Service khởi tạo
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
-  }
+  private readonly logger = new Logger(MailService.name);
 
+  constructor(
+    private readonly userService: UserService,
+    private readonly mailQueueService: MailQueueService, 
+  ) {}
+
+  // 1. Hàm build HTML giữ nguyên (Logic giao diện)
   private buildMailTemplate(
     title: string,
     color: string,
@@ -37,30 +41,9 @@ export class MailService {
     `;
   }
 
-  private async sendMailAsync(to: string, subject: string, html: string) {
-    const msg = {
-      to: to,
-      // Đảm bảo email này đã verify Single Sender trên SendGrid
-      from: 'lamanhkhoa2004@gmail.com',
-      subject: subject,
-      html: html,
-    };
-
-    try {
-      await sgMail.send(msg);
-      console.log('✓ Email sent via SendGrid API:', to);
-    } catch (error: any) {
-      console.error('✗ Email failed:', error);
-      // Log chi tiết lỗi từ SendGrid để dễ debug
-      if (error.response) {
-        console.error('SendGrid Error Body:', error.response.body);
-      }
-    }
-  }
-
-  // Helper xử lý logic tìm user
+  // 2. Hàm xử lý trung gian: Tìm User -> Đẩy vào Queue
   private async processMailLogic(
-    to: string,
+    userIdOrEmail: string,
     subject: string,
     title: string,
     color: string,
@@ -69,27 +52,32 @@ export class MailService {
     end: string,
   ) {
     try {
-      const user = await this.userService.findOne(to);
-      const toEmail = user?.email || to;
+      const user = await this.userService.findOne(userIdOrEmail);
+      const toEmail = user?.email || userIdOrEmail;
 
-      await this.sendMailAsync(
-        toEmail,
-        subject,
-        this.buildMailTemplate(title, color, roomName, start, end),
+      const htmlContent = this.buildMailTemplate(
+        title,
+        color,
+        roomName,
+        start,
+        end,
       );
+      await this.mailQueueService.addEmailJob(toEmail, subject, htmlContent);
+
+      this.logger.log(`✓ Đã thêm job gửi mail cho: ${toEmail} vào hàng đợi.`);
     } catch (err) {
-      console.error('Error in processMailLogic:', err);
+      this.logger.error('Lỗi khi đẩy mail vào hàng đợi:', err);
     }
   }
 
-  sendScheduleApprovedMail(
+  // 3. Các hàm Public (Controller gọi vào đây)
+  async sendScheduleApprovedMail(
     to: string,
     roomName: string,
     start: string,
     end: string,
   ) {
-    // Fire-and-forget (Không await để trả response nhanh)
-    this.processMailLogic(
+    await this.processMailLogic(
       to,
       'Room Booking Approved',
       'Room Booking Approved',
@@ -100,13 +88,13 @@ export class MailService {
     );
   }
 
-  sendScheduleCancelledMail(
+  async sendScheduleCancelledMail(
     to: string,
     roomName: string,
     start: string,
     end: string,
   ) {
-    this.processMailLogic(
+    await this.processMailLogic(
       to,
       'Room Booking Cancelled',
       'Room Booking Cancelled',
@@ -117,7 +105,7 @@ export class MailService {
     );
   }
 
-  sendScheduledMail(
+  async sendScheduledMail(
     result: string,
     to: string,
     roomName: string,
@@ -125,9 +113,9 @@ export class MailService {
     end: string,
   ) {
     if (result === 'approved') {
-      this.sendScheduleApprovedMail(to, roomName, start, end);
+      await this.sendScheduleApprovedMail(to, roomName, start, end);
     } else if (result === 'rejected') {
-      this.sendScheduleCancelledMail(to, roomName, start, end);
+      await this.sendScheduleCancelledMail(to, roomName, start, end);
     }
   }
 }
