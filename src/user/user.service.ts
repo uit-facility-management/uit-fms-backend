@@ -9,7 +9,7 @@ import { User } from './entities/user.entity';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
-import * as crypto from 'crypto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -21,10 +21,7 @@ export class UserService {
     const user = await this.userRepository.findOne({
       where: { username: data.username },
     });
-    const password = crypto
-      .createHash('sha1')
-      .update(data.password)
-      .digest('hex');
+    const password = await bcrypt.hash(data.password, 10);
     data.password = password;
     if (!user) {
       throw new NotFoundException('Username does not exist');
@@ -51,7 +48,13 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update(id, updateUserDto);
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    user.password = await bcrypt.hash(updateUserDto.password, 10);
+    await this.userRepository.save(user);
+    return user;
   }
 
   async remove(id: string) {

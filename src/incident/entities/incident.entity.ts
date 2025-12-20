@@ -67,11 +67,11 @@ export class Incident {
   updatedAt: Date;
 
   //relations
-  @OneToOne(() => RoomAsset, (roomAsset) => roomAsset.id)
+  @OneToMany(() => RoomAsset, (roomAsset) => roomAsset.id)
   @JoinColumn({ name: 'room_asset_id' })
   room_asset: RoomAsset;
 
-  @OneToOne(() => User, (user) => user.id)
+  @OneToMany(() => User, (user) => user.id)
   @JoinColumn({ name: 'created_by' })
   created_user: User;
 }
