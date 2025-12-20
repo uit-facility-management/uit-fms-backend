@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto, SignInDto } from './dto/create-user.dto';
+import { CreateUserDto, SignInDto, UpdatePasswordDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
@@ -52,9 +52,17 @@ export class UserService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    if(updateUserDto.password){
-    user.password = await bcrypt.hash(updateUserDto.password, 10);
+    Object.assign(user, updateUserDto);
+    await this.userRepository.save(user);
+    return user;
+  }
+
+  async changePassword(id: string, updatePassword: UpdatePasswordDto) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
+    user.password = await bcrypt.hash(updatePassword.password, 10);
     await this.userRepository.save(user);
     return user;
   }

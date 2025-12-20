@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -15,7 +16,7 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { CreateUserDto, SignInDto } from './dto/create-user.dto';
+import { CreateUserDto, SignInDto, UpdatePasswordDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('User')
@@ -41,6 +42,22 @@ export class UserController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
+  }
+
+  @Put(':id/change-password')
+  @ApiOperation({
+    summary: 'Change user password',
+    description: 'Change the password of a user by ID',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'User ID',
+    example: '507f1f77bcf86cd799439011',
+  })
+  @ApiBody({ type: UpdatePasswordDto })
+  @ApiOkResponse({ description: 'User password changed successfully' })
+  changePassword(@Param('id') id: string, @Body() updatePasswordDto: UpdatePasswordDto) {
+    return this.userService.changePassword(id, updatePasswordDto);
   }
 
   @Patch(':id')

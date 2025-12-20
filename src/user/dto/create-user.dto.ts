@@ -18,12 +18,6 @@ export class CreateUserDto {
     description: 'Email of the user',
   })
   email: string;
-  @ApiProperty({
-    example: 'hashedpassword123',
-    description: 'Hashed password of the user',
-  })
-  @IsString()
-  password: string;
 }
 export class SignInDto {
   @ApiProperty({
@@ -35,6 +29,14 @@ export class SignInDto {
   @ApiProperty({
     example: 'hashedpassword123',
     description: 'Hashed password of the user',
+  })
+  password: string;
+}
+
+export class UpdatePasswordDto {
+  @ApiProperty({
+    example: 'newhashedpassword123',
+    description: 'New hashed password of the user',
   })
   password: string;
 }

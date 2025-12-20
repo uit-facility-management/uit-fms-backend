@@ -3,13 +3,14 @@ import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { RegisterDto } from './dto/auth.dto';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
-  async register(data: CreateUserDto) {
+  async register(data: RegisterDto) {
     try {
     const existingUser = await this.userService.findByEmail(data.email);
     if (existingUser) {
