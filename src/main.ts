@@ -5,7 +5,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from '@nestjs/common';
 import 'dotenv/config';
 async function bootstrap() {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 3000;
   const config = new DocumentBuilder()

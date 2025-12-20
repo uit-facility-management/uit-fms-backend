@@ -52,7 +52,9 @@ export class UserService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    if(updateUserDto.password){
     user.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
     await this.userRepository.save(user);
     return user;
   }
