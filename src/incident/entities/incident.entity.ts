@@ -5,6 +5,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -67,11 +68,11 @@ export class Incident {
   updatedAt: Date;
 
   //relations
-  @OneToMany(() => RoomAsset, (roomAsset) => roomAsset.id)
+  @ManyToOne(() => RoomAsset, (roomAsset) => roomAsset.id)
   @JoinColumn({ name: 'room_asset_id' })
   room_asset: RoomAsset;
 
-  @OneToMany(() => User, (user) => user.id)
+  @ManyToOne(() => User, (user) => user.id)
   @JoinColumn({ name: 'created_by' })
   created_user: User;
 }
