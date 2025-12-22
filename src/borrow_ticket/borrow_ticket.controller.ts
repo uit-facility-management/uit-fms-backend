@@ -12,7 +12,7 @@ import { CreateBorrowTicketDto } from './dto/create-borrow_ticket.dto';
 import { UpdateBorrowTicketDto } from './dto/update-borrow_ticket.dto';
 import { ApiProperty, ApiResponse } from '@nestjs/swagger';
 
-@Controller('borrow-ticket')
+@Controller('api/v1/borrow-ticket')
 export class BorrowTicketController {
   constructor(private readonly borrowTicketService: BorrowTicketService) {}
 
