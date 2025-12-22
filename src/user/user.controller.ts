@@ -44,13 +44,13 @@ export class UserController {
     description: 'Retrieve all schedules created by a specific user',
   })
   @ApiParam({
-    name: 'user_id',
+    name: 'id',
     description: 'ID of the user',
     example: '507f1f77bcf86cd799439011',
   })
   @ApiOkResponse({ description: 'Schedules retrieved successfully' })
-  findSchedules(@Param('user_id') user_id: string) {
-    return this.userService.findSchedules(user_id);
+  findSchedules(@Param('id') id: string) {
+    return this.userService.findSchedules(id);
   }
   @Get()
   findAll() {

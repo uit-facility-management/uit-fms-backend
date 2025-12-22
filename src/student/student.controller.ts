@@ -41,6 +41,10 @@ export class StudentController {
     return this.studentService.findAll();
   }
 
+  @Get('code/:student_code')
+  findByStudentCode(@Param('student_code') student_code: string) {
+    return this.studentService.findByStudentCode(parseInt(student_code, 10));
+  }
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.studentService.findOne(id);

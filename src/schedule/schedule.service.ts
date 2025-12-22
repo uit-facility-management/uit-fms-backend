@@ -23,7 +23,6 @@ export class ScheduleService {
     private readonly scheduleRepository: Repository<Schedule>,
     private readonly dataSource: DataSource,
     private readonly mailService: MailService,
-    
   ) {}
   async create(createScheduleDto: CreateScheduleDto) {
     return await this.dataSource.transaction(async (manager) => {
@@ -47,7 +46,10 @@ export class ScheduleService {
   }
 
   async updateStatus(id: string, status: UpdateScheduleStatusDto) {
-    const schedule = await this.scheduleRepository.findOne({ where: { id },relations: ['createdBy'] });
+    const schedule = await this.scheduleRepository.findOne({
+      where: { id },
+      relations: ['createdBy'],
+    });
     if (schedule) {
       schedule.status = status.schedule_status;
       this.mailService.sendScheduledMail(
@@ -62,10 +64,12 @@ export class ScheduleService {
     return null;
   }
   findByUser(user_id: string) {
-    return this.scheduleRepository.find({
+    const schedules = this.scheduleRepository.find({
       where: { createdBy: { id: user_id } },
       relations: ['room', 'createdBy'],
     });
+    this.logger.log(`Found schedules for user ${user_id}`);
+    return schedules;
   }
   async findByRoom(room_id: string) {
     const schedules = await this.scheduleRepository.find({

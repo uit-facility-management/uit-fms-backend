@@ -52,8 +52,6 @@ export class StudentService {
     if (!names || names.length === 0) {
       throw new Error('Student name list must not be empty');
     }
-
-    // Lấy student cuối cùng của khóa
     const lastStudent = await this.studentRepository.findOne({
       where: { entry_year },
       order: { student_code: 'DESC' },
@@ -87,6 +85,9 @@ export class StudentService {
     return this.studentRepository.save(students);
   }
 
+  findByStudentCode(student_code: number) {
+    return this.studentRepository.findOneBy({ student_code });
+  }
   findAll() {
     return this.studentRepository.find();
   }
