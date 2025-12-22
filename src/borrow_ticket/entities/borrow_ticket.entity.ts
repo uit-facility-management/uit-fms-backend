@@ -118,7 +118,7 @@ export class BorrowTicket {
   @JoinColumn({ name: 'device_id' })
   device: Device;
 
-  @ManyToOne(() => Student, (student) => student.student_code)
-  @JoinColumn({ name: 'student_code' })
-  student: Student;
+  // @ManyToOne(() => Student, (student) => student.student_code)
+  // @JoinColumn({ name: 'student_number', referencedColumnName: 'student_code' })
+  // student: Student;
 }
