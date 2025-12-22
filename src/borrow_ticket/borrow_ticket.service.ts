@@ -21,6 +21,12 @@ export class BorrowTicketService {
     return this.borrowTicketRepository.save(borrowTicket);
   }
 
+  async findByDeviceId(deviceId: string) {
+    return this.borrowTicketRepository.find({
+      where: { device: { id: deviceId } },
+      relations: ['device', 'room', 'user'],
+    });
+  }
   async returnDevice(id: string) {
     const borrowTicket = await this.borrowTicketRepository.findOneBy({ id });
     if (borrowTicket) {

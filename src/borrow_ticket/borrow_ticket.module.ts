@@ -8,5 +8,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   imports: [TypeOrmModule.forFeature([BorrowTicket])],
   controllers: [BorrowTicketController],
   providers: [BorrowTicketService],
+  exports: [BorrowTicketService],
 })
 export class BorrowTicketModule {}
