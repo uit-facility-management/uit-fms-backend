@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateRoomAssetDto, RoomAssetResponseDto } from './dto/create-room-asset.dto';
 import { UpdateRoomAssetDto } from './dto/update-room-asset.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RoomAsset } from './entities/room-asset.entity';
+import { RoomAsset, RoomAssetStatus } from './entities/room-asset.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -14,6 +14,9 @@ export class RoomAssetsService {
   async create(createRoomAssetDto: CreateRoomAssetDto) {
     const roomAsset = this.roomAssetsRepository.create(createRoomAssetDto);
     return this.roomAssetsRepository.save(roomAsset);
+  }
+  async updateStatus(id: string, status: RoomAssetStatus) {
+    return this.roomAssetsRepository.update(id, { status });
   }
   async findByRoom(room_id: string) {
     return this.roomAssetsRepository.find({ where: { room: { id: room_id } }, relations: ['room'] });

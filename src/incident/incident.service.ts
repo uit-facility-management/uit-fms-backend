@@ -3,17 +3,20 @@ import { CreateIncidentDto } from './dto/create-incident.dto';
 import { UpdateIncidentDto } from './dto/update-incident.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Incident, IncidentStatus } from './entities/incident.entity';
-import { Repository } from 'typeorm';
-import { RoomAsset } from 'src/room-assets/entities/room-asset.entity';
+import { In, Repository } from 'typeorm';
+import { RoomAsset, RoomAssetStatus } from 'src/room-assets/entities/room-asset.entity';
+import { RoomAssetsService } from 'src/room-assets/room-assets.service';
 
 @Injectable()
 export class IncidentService {
   constructor(
     @InjectRepository(Incident)
     private incidentRepository: Repository<Incident>,
+    private roomAssetsService: RoomAssetsService,
   ) {}
   async create(createIncidentDto: CreateIncidentDto) {
     const incident = this.incidentRepository.create(createIncidentDto);
+    this.roomAssetsService.updateStatus(createIncidentDto.room_asset_id, RoomAssetStatus.INACTIVE);
     return this.incidentRepository.save(incident);
   }
 
