@@ -28,8 +28,8 @@ export class BorrowTicket {
     example: '22520671',
     description: 'Student number associated with the borrow ticket',
   })
-  @Column({ type: 'varchar', length: 20 })
-  student_code: string;
+  @Column({ type: 'int' })
+  student_code: number;
 
   @ApiProperty({
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
@@ -118,7 +118,7 @@ export class BorrowTicket {
   @JoinColumn({ name: 'device_id' })
   device: Device;
 
-  // @ManyToOne(() => Student, (student) => student.student_code)
-  // @JoinColumn({ name: 'student_number', referencedColumnName: 'student_code' })
-  // student: Student;
+  @ManyToOne(() => Student, (student) => student.student_code)
+  @JoinColumn({ name: 'student_code', referencedColumnName: 'student_code' })
+  student: Student;
 }

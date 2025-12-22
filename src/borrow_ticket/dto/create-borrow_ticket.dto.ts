@@ -1,14 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { BorrowTicketStatus } from "../entities/borrow_ticket.entity";
-import { IsDate, IsString } from "class-validator";
+import { IsDate, IsNumber, IsString } from "class-validator";
 
 export class CreateBorrowTicketDto {
     @ApiProperty({
         example: '22520671',
         description: 'Student number of the borrower',
     })
-    @IsString()
-    student_number: string;
+    @IsNumber()
+    student_code: number;
 
     @ApiProperty({
         example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
