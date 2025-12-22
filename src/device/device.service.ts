@@ -21,6 +21,13 @@ export class DeviceService {
       return this.deviceRepository.save(device);
     }
   }
+  async returnDevice(deviceId: string) {
+    const device = await this.deviceRepository.findOneBy({ id: deviceId });
+    if (device) {
+      device.status = DeviceStatus.ACTIVE;
+      return this.deviceRepository.save(device);
+    }
+  }
   create(createDeviceDto: CreateDeviceDto) {
     const device = this.deviceRepository.create(createDeviceDto);
     return this.deviceRepository.save(device);

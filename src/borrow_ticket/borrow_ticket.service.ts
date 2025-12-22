@@ -36,6 +36,7 @@ export class BorrowTicketService {
     if (borrowTicket) {
       borrowTicket.returned_at = new Date();
       borrowTicket.status = BorrowTicketStatus.RETURNED;
+      await this.deviceService.returnDevice(borrowTicket.device.id);
       return this.borrowTicketRepository.save(borrowTicket);
     }
     return null;
