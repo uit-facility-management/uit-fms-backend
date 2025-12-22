@@ -11,6 +11,7 @@
   import { MailModule } from './mail/mail.module';
   import { BorrowTicketModule } from './borrow_ticket/borrow_ticket.module';
   import { DeviceModule } from './device/device.module';
+import { StudentModule } from './student/student.module';
 
   @Module({
     imports: [
@@ -61,6 +62,7 @@
       MailModule,
       BorrowTicketModule,
       DeviceModule,
+      StudentModule,
     ],
   })
   export class AppModule {}
