@@ -10,12 +10,14 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { ScheduleService } from 'src/schedule/schedule.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly scheduleService: ScheduleService,
   ) {}
   async signIn(data: SignInDto) {
     const user = await this.userRepository.findOne({
@@ -30,6 +32,9 @@ export class UserService {
     } else if (user.password !== data.password) {
       throw new ConflictException('Password is incorrect');
     }
+  }
+  async findSchedules(user_id: string) {
+    return this.scheduleService.findByUser(user_id);
   }
   async create(createUserDto: CreateUserDto) {
     const user = this.userRepository.create(createUserDto);

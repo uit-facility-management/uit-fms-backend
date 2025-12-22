@@ -7,7 +7,6 @@ export class MailService {
   private readonly logger = new Logger(MailService.name);
 
   constructor(
-    private readonly userService: UserService,
     private readonly mailQueueService: MailQueueService, // Inject Queue vào đây
   ) {}
 

@@ -34,6 +34,20 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
+  @Get('schedules/:user_id')
+  @ApiOperation({
+    summary: 'Get schedules for a user',
+    description: 'Retrieve all schedules created by a specific user',
+  })
+  @ApiParam({
+    name: 'user_id',
+    description: 'ID of the user',
+    example: '507f1f77bcf86cd799439011',
+  })
+  @ApiOkResponse({ description: 'Schedules retrieved successfully' })
+  findSchedules(@Param('user_id') user_id: string) {
+    return this.userService.findSchedules(user_id);
+  }
   @Get()
   findAll() {
     return this.userService.findAll();

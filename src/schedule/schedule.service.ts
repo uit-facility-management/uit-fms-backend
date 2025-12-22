@@ -61,6 +61,12 @@ export class ScheduleService {
     }
     return null;
   }
+  findByUser(user_id: string) {
+    return this.scheduleRepository.find({
+      where: { createdBy: { id: user_id } },
+      relations: ['room', 'createdBy'],
+    });
+  }
   async findByRoom(room_id: string) {
     const schedules = await this.scheduleRepository.find({
       where: { room_id },

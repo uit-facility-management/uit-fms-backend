@@ -5,7 +5,7 @@ import { UserModule } from 'src/user/user.module';
 
 
 @Module({
-  imports: [UserModule],
+  imports: [],
   providers: [MailQueueService, MailService],
   exports: [MailQueueService,MailService], 
 })
