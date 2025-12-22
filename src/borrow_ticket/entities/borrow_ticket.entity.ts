@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Device } from 'src/device/entities/device.entity';
 import { Room } from 'src/room/entities/room.entity';
+import { Student } from 'src/student/entities/student.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -28,7 +29,7 @@ export class BorrowTicket {
     description: 'Student number associated with the borrow ticket',
   })
   @Column({ type: 'varchar', length: 20 })
-  student_number: string;
+  student_code: string;
 
   @ApiProperty({
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
@@ -116,4 +117,8 @@ export class BorrowTicket {
   @ManyToOne(() => Device, (device) => device.id)
   @JoinColumn({ name: 'device_id' })
   device: Device;
+
+  @ManyToOne(() => Student, (student) => student.student_code)
+  @JoinColumn({ name: 'student_code' })
+  student: Student;
 }

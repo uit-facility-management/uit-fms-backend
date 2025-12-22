@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateBorrowTicketDto } from './dto/create-borrow_ticket.dto';
 import { UpdateBorrowTicketDto } from './dto/update-borrow_ticket.dto';
 import {
@@ -7,24 +7,28 @@ import {
 } from './entities/borrow_ticket.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { DeviceService } from 'src/device/device.service';
 
 @Injectable()
 export class BorrowTicketService {
   constructor(
     @InjectRepository(BorrowTicket)
     private readonly borrowTicketRepository: Repository<BorrowTicket>,
+    @Inject(forwardRef(() => DeviceService))
+    private readonly deviceService: DeviceService,
   ) {}
   async create(createBorrowTicketDto: CreateBorrowTicketDto) {
     const borrowTicket = this.borrowTicketRepository.create(
       createBorrowTicketDto,
     );
+    await this.deviceService.borrow(createBorrowTicketDto.device_id);
     return this.borrowTicketRepository.save(borrowTicket);
   }
 
   async findByDeviceId(deviceId: string) {
     return this.borrowTicketRepository.find({
       where: { device: { id: deviceId } },
-      relations: ['device', 'room', 'user'],
+      relations: ['device', 'room', 'user', 'student'],
     });
   }
   async returnDevice(id: string) {

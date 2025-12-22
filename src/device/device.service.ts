@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Device } from './entities/device.entity';
+import { Device, DeviceStatus } from './entities/device.entity';
 import { Repository } from 'typeorm';
 import { BorrowTicketService } from 'src/borrow_ticket/borrow_ticket.service';
 
@@ -11,8 +11,16 @@ export class DeviceService {
   constructor(
     @InjectRepository(Device)
     private readonly deviceRepository: Repository<Device>,
+    @Inject(forwardRef(() => BorrowTicketService))
     private readonly borrowTicketService: BorrowTicketService,
   ) {}
+  async borrow(deviceId: string) {
+    const device = await this.deviceRepository.findOneBy({ id: deviceId });
+    if (device) {
+      device.status = DeviceStatus.BORROWING;
+      return this.deviceRepository.save(device);
+    }
+  }
   create(createDeviceDto: CreateDeviceDto) {
     const device = this.deviceRepository.create(createDeviceDto);
     return this.deviceRepository.save(device);

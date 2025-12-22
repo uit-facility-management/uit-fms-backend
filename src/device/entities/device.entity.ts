@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 export enum DeviceStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
-  MAINTENANCE = 'MAINTENANCE',
+  BORROWING = 'BORROWING',
 }
 @Entity()
 export class Device {

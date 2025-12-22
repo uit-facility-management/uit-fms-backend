@@ -17,10 +17,4 @@ export class CreateDeviceDto {
   @IsString()
   description: string;
 
-  @ApiProperty({
-    example: 'ACTIVE',
-    description: 'Current status of the device',
-  })
-  @IsEnum(DeviceStatus)
-  status: DeviceStatus;
 }
