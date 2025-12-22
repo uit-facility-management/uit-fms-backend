@@ -50,7 +50,7 @@ export class BorrowTicketService {
   async findOne(id: string) {
     return this.borrowTicketRepository.findOne({
       where: { id },
-      relations: ['device', 'room', 'user'],
+      relations: ['device', 'room', 'user', 'student'],
     });
   }
 
