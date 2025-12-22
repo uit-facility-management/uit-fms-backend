@@ -16,7 +16,11 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { CreateUserDto, SignInDto, UpdatePasswordDto } from './dto/create-user.dto';
+import {
+  CreateUserDto,
+  SignInDto,
+  UpdatePasswordDto,
+} from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('User')
@@ -34,7 +38,7 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Get('schedules/:user_id')
+  @Get(':id/schedules')
   @ApiOperation({
     summary: 'Get schedules for a user',
     description: 'Retrieve all schedules created by a specific user',
@@ -70,7 +74,10 @@ export class UserController {
   })
   @ApiBody({ type: UpdatePasswordDto })
   @ApiOkResponse({ description: 'User password changed successfully' })
-  changePassword(@Param('id') id: string, @Body() updatePasswordDto: UpdatePasswordDto) {
+  changePassword(
+    @Param('id') id: string,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ) {
     return this.userService.changePassword(id, updatePasswordDto);
   }
 
