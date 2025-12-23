@@ -28,7 +28,7 @@ export class BorrowTicketService {
   async findByDeviceId(deviceId: string) {
     return this.borrowTicketRepository.find({
       where: { device: { id: deviceId } },
-      relations: ['device', 'room', 'user',],
+      relations: ['device', 'room', 'user', 'student'],
     });
   }
   async returnDevice(id: string) {
@@ -44,7 +44,7 @@ export class BorrowTicketService {
 
   async findAll() {
     return this.borrowTicketRepository.find({
-      relations: ['device', 'room', 'user','student'],
+      relations: ['device', 'room', 'user', 'student'],
     });
   }
 
