@@ -50,7 +50,6 @@ export class IncidentService {
   }
 
   async updateStatus(id: string, status: IncidentStatus) {
-    this.logger.log(`Updating room asset status to ACTIVE:${id}`);
     const incident = await this.incidentRepository.findOne({
       where: { id },
       relations: ['room_asset'],
@@ -58,16 +57,14 @@ export class IncidentService {
     if (!incident) {
       throw new NotFoundException(`Incident with id ${id} not found`);
     }
-    this.logger.log(
-      'Updating room asset status to ACTIVE:',
-      incident.room_asset.id,
-    );
+
     if (status === IncidentStatus.RESOLVED ) {
       await this.roomAssetsService.updateStatus(
         incident.room_asset.id,
         RoomAssetStatus.ACTIVE,
       );
     }
+    incident.status = status;
     return this.incidentRepository.save(incident);
   }
   async update(id: string, updateIncidentDto: UpdateIncidentDto) {
