@@ -6,10 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
+import { ApiQuery } from '@nestjs/swagger';
+import { Device, DeviceStatus } from './entities/device.entity';
 
 @Controller('api/v1/device')
 export class DeviceController {
@@ -21,8 +24,9 @@ export class DeviceController {
   }
 
   @Get()
-  findAll() {
-    return this.deviceService.findAll();
+  @ApiQuery({ name: 'status', required: false })
+  findAll(@Query('status') status?: DeviceStatus) {
+    return this.deviceService.findAll(status);
   }
 
   @Get(':id/borrow-tickets')

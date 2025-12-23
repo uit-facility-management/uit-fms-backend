@@ -33,8 +33,10 @@ export class DeviceService {
     return this.deviceRepository.save(device);
   }
 
-  findAll() {
-    const devices = this.deviceRepository.find();
+  findAll(status?: DeviceStatus) {
+    const devices = this.deviceRepository.find({
+      where: status ? { status } : {},
+    });
     return devices;
   }
   async findBorrowTicketes(deviceId: string) {
