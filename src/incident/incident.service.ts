@@ -33,6 +33,7 @@ export class IncidentService {
     return this.incidentRepository.find({
       where: { room_asset: { room: { id: room_id } } },
       relations: ['room_asset', 'room_asset.room', 'created_user'],
+      order: { status: 'ASC' },
     });
   }
   async findAll() {
@@ -59,7 +60,7 @@ export class IncidentService {
       throw new NotFoundException(`Incident with id ${id} not found`);
     }
 
-    if (status === IncidentStatus.RESOLVED ) {
+    if (status === IncidentStatus.RESOLVED) {
       await this.roomAssetsService.updateStatus(
         incident.room_asset.id,
         RoomAssetStatus.ACTIVE,

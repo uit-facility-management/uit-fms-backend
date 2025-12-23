@@ -72,16 +72,36 @@ export class ScheduleService {
     return schedules;
   }
   async findByRoom(room_id: string) {
-    const schedules = await this.scheduleRepository.find({
-      where: { room_id },
-      relations: ['room', 'createdBy'],
-    });
+    const schedules = await this.scheduleRepository
+      .createQueryBuilder('schedule')
+      .leftJoinAndSelect('schedule.room', 'room')
+      .leftJoinAndSelect('schedule.createdBy', 'createdBy')
+      .where('schedule.room_id = :roomId', { roomId: room_id })
+      .orderBy(
+        `CASE
+        WHEN schedule.status = 'pending' THEN 0
+        ELSE 1
+      END`,
+        'ASC',
+      )
+      .addOrderBy('schedule.createdAt', 'DESC')
+      .getMany();
     return schedules;
   }
   async findAll() {
-    const schedules = await this.scheduleRepository.find({
-      relations: ['room', 'createdBy'],
-    });
+    const schedules = await this.scheduleRepository
+      .createQueryBuilder('schedule')
+      .leftJoinAndSelect('schedule.room', 'room')
+      .leftJoinAndSelect('schedule.createdBy', 'createdBy')
+      .orderBy(
+        `CASE 
+        WHEN schedule.status = 'pending' THEN 0
+        ELSE 1
+      END`,
+        'ASC',
+      )
+      .addOrderBy('schedule.createdAt', 'DESC')
+      .getMany();
     return schedules;
   }
 
