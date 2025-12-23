@@ -38,6 +38,7 @@ export class IncidentService {
   async findAll() {
     return this.incidentRepository.find({
       relations: ['room_asset', 'room_asset.room', 'created_user'],
+      order: { status: 'ASC' },
     });
   }
 
