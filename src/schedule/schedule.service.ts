@@ -10,7 +10,7 @@ import {
   UpdateScheduleStatusDto,
 } from './dto/update-schedule.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Schedule } from './entities/schedule.entity';
+import { DayOfWeek, Schedule } from './entities/schedule.entity';
 import { Repository } from 'typeorm';
 import { DataSource } from 'typeorm';
 import { MailService } from 'src/mail/mail.service';
@@ -26,8 +26,14 @@ export class ScheduleService {
   ) {}
   async create(createScheduleDto: CreateScheduleDto) {
     return await this.dataSource.transaction(async (manager) => {
-      const { room_id, start_time, end_time, period_start, period_end } =
-        createScheduleDto;
+      const {
+        room_id,
+        start_time,
+        end_time,
+        period_start,
+        period_end,
+        day_of_week,
+      } = createScheduleDto;
       const conflict = await manager
         .createQueryBuilder('schedule', 's')
         .setLock('pessimistic_write')
@@ -36,6 +42,9 @@ export class ScheduleService {
         .andWhere('s.end_time > :start', { start: start_time })
         .andWhere('s.period_start < :pEnd', { pEnd: period_end })
         .andWhere('s.period_end > :pStart', { pStart: period_start })
+        .andWhere('day_of_week = :dayOfWeek', {
+          dayOfWeek: day_of_week,
+        })
         .getOne();
       if (conflict) {
         throw new ConflictException('Phòng đã có lịch trùng. Không tạo được.');
