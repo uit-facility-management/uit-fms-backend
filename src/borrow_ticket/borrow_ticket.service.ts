@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateBorrowTicketDto } from './dto/create-borrow_ticket.dto';
 import { UpdateBorrowTicketDto } from './dto/update-borrow_ticket.dto';
 import {
@@ -11,6 +11,7 @@ import { DeviceService } from 'src/device/device.service';
 
 @Injectable()
 export class BorrowTicketService {
+  private readonly logger = new Logger(BorrowTicketService.name);
   constructor(
     @InjectRepository(BorrowTicket)
     private readonly borrowTicketRepository: Repository<BorrowTicket>,
@@ -32,7 +33,12 @@ export class BorrowTicketService {
     });
   }
   async returnDevice(id: string) {
-    const borrowTicket = await this.borrowTicketRepository.findOneBy({ id });
+    this.logger.log(`Returning device for borrow ticket ID: ${id}`);
+    const borrowTicket = await this.borrowTicketRepository.findOne({
+      where: { id },
+      relations: ['device'],
+    });
+
     if (borrowTicket) {
       borrowTicket.returned_at = new Date();
       borrowTicket.status = BorrowTicketStatus.RETURNED;
