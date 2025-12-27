@@ -14,7 +14,8 @@ async function bootstrap() {
     .build();
 
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin:
+      'http://localhost:3000, https://uit-fms-frontend-production.up.railway.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true,
   });
