@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ScheduleStatus } from '../entities/schedule.entity';
+import { DayOfWeek, ScheduleStatus } from '../entities/schedule.entity';
 import { IsDate, IsEnum, IsNumber, IsString } from 'class-validator';
 
 export class CreateScheduleDto {
@@ -17,6 +17,12 @@ export class CreateScheduleDto {
   @IsString()
   created_by: string;
 
+  @ApiProperty({
+    example: 2,
+    description: 'Day of the week for the schedule (1=Monday, 7=Sunday)',
+  })
+  @IsEnum(DayOfWeek)
+  day_of_week: DayOfWeek;
   @ApiProperty({
     example: '2024-07-01T10:00:00Z',
     description: 'Start time of the schedule',
@@ -52,4 +58,3 @@ export class CreateScheduleDto {
   @IsEnum(ScheduleStatus)
   status: ScheduleStatus;
 }
-

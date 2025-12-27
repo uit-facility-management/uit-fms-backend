@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsNumber } from 'class-validator';
+import { IsDate, IsEnum, IsNumber } from 'class-validator';
+import { DayOfWeek } from 'src/schedule/entities/schedule.entity';
 
 export class FilterRoomDto {
   @ApiProperty({
@@ -32,4 +33,12 @@ export class FilterRoomDto {
   })
   @IsNumber()
   period_end?: number;
+
+  @ApiProperty({
+    required: false,
+    example: 2,
+    description: 'Day of the week for the schedule (1=Monday, 7=Sunday)',
+  })
+  @IsEnum(DayOfWeek)
+  day_of_week?: DayOfWeek;
 }

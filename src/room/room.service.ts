@@ -39,6 +39,9 @@ export class RoomService {
           .andWhere('s.period_end > :periodStart', {
             periodStart: filter.period_start,
           })
+          .andWhere('day_of_week = :dayOfWeek', {
+            dayOfWeek: filter.day_of_week,
+          })
           .getQuery();
 
         return `room.id NOT IN ${sub}`;
@@ -66,7 +69,10 @@ export class RoomService {
   }
 
   async findOne(id: string) {
-    return this.roomRepository.findOne({ where: { id }, relations: ['building'] });
+    return this.roomRepository.findOne({
+      where: { id },
+      relations: ['building'],
+    });
   }
   async update(id: string, updateRoomDto: UpdateRoomDto) {
     await this.roomRepository.update(id, updateRoomDto);

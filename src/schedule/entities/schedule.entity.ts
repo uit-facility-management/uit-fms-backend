@@ -8,7 +8,15 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-
+export enum DayOfWeek {
+  Monday = 1,
+  Tuesday,
+  Wednesday,
+  Thursday,
+  Friday,
+  Saturday,
+  Sunday,
+}
 export enum ScheduleStatus {
   APPROVED = 'approved',
   DECLINED = 'declined',
@@ -65,6 +73,12 @@ export class Schedule {
   @Column('int')
   period_end: number;
 
+  @ApiProperty({
+    example: 2,
+    description: 'Day of the week for the schedule (1=Monday, 7=Sunday)',
+  })
+  @Column('int', { nullable: true })
+  day_of_week: DayOfWeek;
   @ApiProperty({
     example: 'active',
     description: 'Status of the schedule',
