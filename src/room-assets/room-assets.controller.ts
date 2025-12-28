@@ -23,7 +23,7 @@ export class RoomAssetsController {
   }
 
   @Get()
-  findAll(@Query() query: RoomAssetQueryDto) {
+  findAll(@Query() query?: RoomAssetQueryDto) {
     return this.roomAssetsService.findAll(query);
   }
 

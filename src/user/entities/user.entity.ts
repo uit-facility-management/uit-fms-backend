@@ -18,6 +18,7 @@ export class User {
   @Column({ type: 'varchar', length: 100, unique: true })
   username: string;
 
+  
   @ApiProperty({
     example: 'John Doe',
     description: 'Full name of the user',

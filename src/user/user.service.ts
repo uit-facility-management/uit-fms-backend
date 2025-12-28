@@ -8,9 +8,10 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { Brackets, Not, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ScheduleService } from 'src/schedule/schedule.service';
+import { UserRequestDto } from './dto/filter-user.dto';
 
 @Injectable()
 export class UserService {
@@ -42,10 +43,24 @@ export class UserService {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
-  }
-  async findAll() {
-    return this.userRepository.find();
+      return this.userRepository.findOne({ where: { email } });
+    }
+    async findAll(query: UserRequestDto) {
+    const qb = this.userRepository.createQueryBuilder('user');
+
+    const q = query?.q?.trim();
+    if (q) {
+      const keyword = `%${q}%`;
+      qb.andWhere(
+        new Brackets((sub) => {
+          sub.where('user.fullName ILIKE :keyword', { keyword })
+            .orWhere('user.email ILIKE :keyword', { keyword })
+            .orWhere('user.username ILIKE :keyword', { keyword });
+        }),
+      );
+    }
+
+    return qb.getMany();
   }
 
   async findOne(id: string) {
