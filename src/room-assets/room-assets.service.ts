@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateRoomAssetDto, RoomAssetResponseDto } from './dto/create-room-asset.dto';
+import {
+  CreateRoomAssetDto,
+  RoomAssetResponseDto,
+} from './dto/create-room-asset.dto';
 import { UpdateRoomAssetDto } from './dto/update-room-asset.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomAsset, RoomAssetStatus } from './entities/room-asset.entity';
@@ -20,23 +23,30 @@ export class RoomAssetsService {
     return this.roomAssetsRepository.update(id, { status });
   }
   async findByRoom(room_id: string) {
-    return this.roomAssetsRepository.find({ where: { room: { id: room_id } }, relations: ['room'] });
+    return this.roomAssetsRepository.find({
+      where: { room: { id: room_id } },
+      relations: ['room'],
+    });
   }
-  
+
   async findAll(query?: RoomAssetQueryDto) {
     if (!query) {
-      const roomAssets = await this.roomAssetsRepository.find({ relations: ['room', 'room.building'] });
+      const roomAssets = await this.roomAssetsRepository.find({
+        relations: ['room', 'room.building'],
+      });
       return roomAssets;
     }
     const qb = this.roomAssetsRepository
       .createQueryBuilder('asset')
-      .leftJoinAndSelect('asset.room', 'room');
+      .leftJoinAndSelect('asset.room', 'room')
+      .leftJoinAndSelect('room.building', 'building');
 
     if (query.q?.trim()) {
       const keyword = `%${query.q.trim()}%`;
       qb.andWhere(
         new Brackets((sub) => {
-          sub.where('asset.name ILIKE :keyword', { keyword })
+          sub
+            .where('asset.name ILIKE :keyword', { keyword })
             .orWhere('asset.type ILIKE :keyword', { keyword });
         }),
       );
@@ -44,8 +54,10 @@ export class RoomAssetsService {
 
     // ✅ Filters
     if (query.type) qb.andWhere('asset.type = :type', { type: query.type });
-    if (query.status) qb.andWhere('asset.status = :status', { status: query.status });
-    if (query.roomId) qb.andWhere('room.id = :roomId', { roomId: query.roomId });
+    if (query.status)
+      qb.andWhere('asset.status = :status', { status: query.status });
+    if (query.roomId)
+      qb.andWhere('room.id = :roomId', { roomId: query.roomId });
 
     // ✅ No paging
     const items = await qb.getMany();
@@ -53,7 +65,10 @@ export class RoomAssetsService {
   }
 
   async findOne(id: string) {
-    return this.roomAssetsRepository.findOne({ where: { id }, relations: ['room'] });
+    return this.roomAssetsRepository.findOne({
+      where: { id },
+      relations: ['room'],
+    });
   }
 
   async update(id: string, updateRoomAssetDto: UpdateRoomAssetDto) {
