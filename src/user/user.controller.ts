@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Put,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -22,6 +23,7 @@ import {
   UpdatePasswordDto,
 } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserRequestDto } from './dto/filter-user.dto';
 
 @ApiTags('User')
 @Controller('api/v1/user')
@@ -52,9 +54,10 @@ export class UserController {
   findSchedules(@Param('id') id: string) {
     return this.userService.findSchedules(id);
   }
+
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() query: UserRequestDto) {
+    return this.userService.findAll(query);
   }
 
   @Get(':id')
