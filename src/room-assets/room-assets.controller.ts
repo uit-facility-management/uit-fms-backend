@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { RoomAssetsService } from './room-assets.service';
 import { CreateRoomAssetDto } from './dto/create-room-asset.dto';
 import { UpdateRoomAssetDto } from './dto/update-room-asset.dto';
+import { RoomAssetQueryDto } from './dto/filter-room-asset-dto';
 
 @Controller('api/v1/room-assets')
 export class RoomAssetsController {
@@ -21,8 +23,8 @@ export class RoomAssetsController {
   }
 
   @Get()
-  findAll() {
-    return this.roomAssetsService.findAll();
+  findAll(@Query() query: RoomAssetQueryDto) {
+    return this.roomAssetsService.findAll(query);
   }
 
   @Get(':id')

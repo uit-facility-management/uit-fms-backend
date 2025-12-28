@@ -3,7 +3,8 @@ import { CreateRoomAssetDto, RoomAssetResponseDto } from './dto/create-room-asse
 import { UpdateRoomAssetDto } from './dto/update-room-asset.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomAsset, RoomAssetStatus } from './entities/room-asset.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
+import { RoomAssetQueryDto } from './dto/filter-room-asset-dto';
 
 @Injectable()
 export class RoomAssetsService {
@@ -21,9 +22,34 @@ export class RoomAssetsService {
   async findByRoom(room_id: string) {
     return this.roomAssetsRepository.find({ where: { room: { id: room_id } }, relations: ['room'] });
   }
-  async findAll() {
-    const roomAssets = await this.roomAssetsRepository.find({ relations: ['room', 'room.building'] });
-    return roomAssets;
+  
+  async findAll(query?: RoomAssetQueryDto) {
+    if (!query) {
+      const roomAssets = await this.roomAssetsRepository.find({ relations: ['room', 'room.building'] });
+      return roomAssets;
+    }
+    const qb = this.roomAssetsRepository
+      .createQueryBuilder('asset')
+      .leftJoinAndSelect('asset.room', 'room');
+
+    if (query.q?.trim()) {
+      const keyword = `%${query.q.trim()}%`;
+      qb.andWhere(
+        new Brackets((sub) => {
+          sub.where('asset.name ILIKE :keyword', { keyword })
+            .orWhere('asset.type ILIKE :keyword', { keyword });
+        }),
+      );
+    }
+
+    // ✅ Filters
+    if (query.type) qb.andWhere('asset.type = :type', { type: query.type });
+    if (query.status) qb.andWhere('asset.status = :status', { status: query.status });
+    if (query.roomId) qb.andWhere('room.id = :roomId', { roomId: query.roomId });
+
+    // ✅ No paging
+    const items = await qb.getMany();
+    return items;
   }
 
   async findOne(id: string) {
