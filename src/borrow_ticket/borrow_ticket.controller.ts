@@ -6,11 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { BorrowTicketService } from './borrow_ticket.service';
 import { CreateBorrowTicketDto } from './dto/create-borrow_ticket.dto';
 import { UpdateBorrowTicketDto } from './dto/update-borrow_ticket.dto';
-import { ApiProperty, ApiResponse } from '@nestjs/swagger';
+import { ApiProperty, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { BorrowTicketQueryDto } from './dto/search-borrow_ticket.dto';
 
 @Controller('api/v1/borrow-ticket')
 export class BorrowTicketController {
@@ -26,8 +28,9 @@ export class BorrowTicketController {
   }
 
   @Get()
-  findAll() {
-    return this.borrowTicketService.findAll();
+  @ApiQuery({ name: 'q', required: false })
+  findAll(@Query() query: BorrowTicketQueryDto) {
+    return this.borrowTicketService.findAll(query);
   }
 
   @Get(':id')

@@ -6,8 +6,9 @@ import {
   BorrowTicketStatus,
 } from './entities/borrow_ticket.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { DeviceService } from 'src/device/device.service';
+import { BorrowTicketQueryDto } from './dto/search-borrow_ticket.dto';
 
 @Injectable()
 export class BorrowTicketService {
@@ -48,10 +49,53 @@ export class BorrowTicketService {
     return null;
   }
 
-  async findAll() {
-    return this.borrowTicketRepository.find({
-      relations: ['device', 'room', 'user', 'student'],
-    });
+  async findAll(query?: BorrowTicketQueryDto) {
+    if (!query) {
+      const tickets = await this.borrowTicketRepository.find({
+        relations: ['device', 'room', 'user', 'student'],
+      });
+      return tickets;
+    }
+    const qb = this.borrowTicketRepository
+      .createQueryBuilder('ticket')
+      .leftJoinAndSelect('ticket.student', 'student')
+      .leftJoinAndSelect('ticket.device', 'device')
+      .leftJoinAndSelect('ticket.room', 'room')
+      .leftJoinAndSelect('ticket.user', 'user');
+
+    if (query?.q?.trim()) {
+      const keyword = `%${query.q.trim()}%`;
+
+      qb.andWhere(
+        new Brackets((sub) => {
+          sub
+            // ===== người mượn =====
+            .where('student.name ILIKE :keyword', { keyword })
+            .orWhere('student.student_code::text ILIKE :keyword', { keyword })
+
+            // ===== thiết bị / phòng =====
+            .orWhere('device.name ILIKE :keyword', { keyword })
+            .orWhere('room.name ILIKE :keyword', { keyword })
+
+            // ===== trạng thái / id =====
+            .orWhere('ticket.status::text ILIKE :keyword', { keyword })
+            .orWhere('ticket.id::text ILIKE :keyword', { keyword })
+
+            // ===== ngày mượn / ngày trả =====
+            // search dạng: 27/12/2025
+            .orWhere(`to_char(ticket.borrowed_at, 'DD/MM/YYYY') ILIKE :keyword`, { keyword })
+            .orWhere(`to_char(ticket.returned_at, 'DD/MM/YYYY') ILIKE :keyword`, { keyword })
+
+            // search dạng: 22:41:27 23/12/2025 (giống UI)
+            .orWhere(`to_char(ticket.borrowed_at, 'HH24:MI:SS DD/MM/YYYY') ILIKE :keyword`, { keyword })
+            .orWhere(`to_char(ticket.returned_at, 'HH24:MI:SS DD/MM/YYYY') ILIKE :keyword`, { keyword });
+        }),
+      );
+    }
+
+    qb.orderBy('ticket.updated_at', 'DESC');
+
+    return qb.getMany();
   }
 
   async borrowedCount() {
