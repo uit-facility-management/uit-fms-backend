@@ -3,8 +3,9 @@ import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device, DeviceStatus } from './entities/device.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { BorrowTicketService } from 'src/borrow_ticket/borrow_ticket.service';
+import { DeviceQueryDto } from './dto/search-device.dto';
 
 @Injectable()
 export class DeviceService {
@@ -33,12 +34,43 @@ export class DeviceService {
     return this.deviceRepository.save(device);
   }
 
-  findAll(status?: DeviceStatus) {
-    const devices = this.deviceRepository.find({
-      where: status ? { status } : {},
-    });
-    return devices;
+  // findAll(status?: DeviceStatus) {
+  //   const devices = this.deviceRepository.find({
+  //     where: status ? { status } : {},
+  //   });
+  //   return devices;
+  // }
+
+  async findAll(q?: string, status?: DeviceStatus) {
+    if (!q) {
+      const devices = this.deviceRepository.find({
+        where: status ? { status } : {},
+      });
+      return devices;
+    }
+    const qb = this.deviceRepository.createQueryBuilder('device');
+
+    if (q?.trim()) {
+      const keyword = `%${q.trim()}%`;
+      qb.andWhere(
+        new Brackets((sub) => {
+          sub
+            .where('device.name ILIKE :keyword', { keyword })
+            .orWhere('device.description ILIKE :keyword', { keyword })
+            .orWhere('device.id::text ILIKE :keyword', { keyword })
+            .orWhere('device.status::text ILIKE :keyword', { keyword });
+        }),
+      );
+    }
+
+    if (status) {
+      qb.andWhere('device.status = :status', { status });
+    }
+
+    return qb.orderBy('device.updatedAt', 'DESC').getMany();
   }
+
+
   async findBorrowTicketes(deviceId: string) {
     const device = await this.borrowTicketService.findByDeviceId(deviceId);
     return device;
