@@ -54,6 +54,22 @@ export class BorrowTicketService {
     });
   }
 
+  async borrowedCount() {
+    const overdueTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const overdueBorrowed = await this.borrowTicketRepository
+      .createQueryBuilder('borrow_ticket')
+      .leftJoinAndSelect('borrow_ticket.device', 'device')
+      .leftJoinAndSelect('borrow_ticket.student', 'student')
+      .where('borrow_ticket.status = :status', {
+        status: BorrowTicketStatus.BORROWING,
+      })
+      .andWhere('borrow_ticket.borrowed_at < :overdueTime', { overdueTime })
+      .getMany();
+    const currentlyBorrowed = await this.borrowTicketRepository.countBy({
+      status: BorrowTicketStatus.BORROWING,
+    });
+    return {  currentlyBorrowed, overdueBorrowed };
+  }
   async findOne(id: string) {
     return this.borrowTicketRepository.findOne({
       where: { id },

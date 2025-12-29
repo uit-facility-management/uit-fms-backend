@@ -12,6 +12,7 @@
   import { BorrowTicketModule } from './borrow_ticket/borrow_ticket.module';
   import { DeviceModule } from './device/device.module';
 import { StudentModule } from './student/student.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
   @Module({
     imports: [
@@ -63,6 +64,7 @@ import { StudentModule } from './student/student.module';
       BorrowTicketModule,
       DeviceModule,
       StudentModule,
+      DashboardModule,
     ],
   })
   export class AppModule {}

@@ -21,6 +21,14 @@ export class RoomService {
     const room = this.roomRepository.create(createRoomDto);
     return this.roomRepository.save(room);
   }
+  async roomCount() {
+    const totalRooms = await this.roomRepository.count();
+    const availableRooms = await this.roomRepository.countBy({
+      status: 'active',
+    });
+    return { totalRooms, availableRooms };
+  }
+
   async findFreeRooms(filter: FilterRoomDto) {
     return this.roomRepository
       .createQueryBuilder('room')

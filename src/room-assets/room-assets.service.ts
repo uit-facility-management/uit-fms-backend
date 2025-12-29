@@ -28,7 +28,16 @@ export class RoomAssetsService {
       relations: ['room'],
     });
   }
-
+  async roomAssetsCount() {
+    const totalAssets = await this.roomAssetsRepository.count();
+    const activeAssets = await this.roomAssetsRepository.countBy({
+      status: RoomAssetStatus.ACTIVE,
+    });
+    const inactiveAssets = await this.roomAssetsRepository.countBy({
+      status: RoomAssetStatus.INACTIVE,
+    });
+    return { totalAssets, activeAssets, inactiveAssets };
+  }
   async findAll(query?: RoomAssetQueryDto) {
     if (!query) {
       const roomAssets = await this.roomAssetsRepository.find({

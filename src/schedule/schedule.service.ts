@@ -10,7 +10,7 @@ import {
   UpdateScheduleStatusDto,
 } from './dto/update-schedule.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DayOfWeek, Schedule } from './entities/schedule.entity';
+import { DayOfWeek, Schedule, ScheduleStatus } from './entities/schedule.entity';
 import { Repository } from 'typeorm';
 import { DataSource } from 'typeorm';
 import { MailService } from 'src/mail/mail.service';
@@ -71,6 +71,12 @@ export class ScheduleService {
       return this.scheduleRepository.save(schedule);
     }
     return null;
+  }
+  async scheduleCount() {
+    const pendingSchedules = await this.scheduleRepository.countBy({
+       status: ScheduleStatus.PENDING,
+    });
+    return { pendingSchedules };
   }
   findByUser(user_id: string) {
     const schedules = this.scheduleRepository.find({
