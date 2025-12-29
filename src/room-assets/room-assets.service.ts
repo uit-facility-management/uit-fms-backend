@@ -58,7 +58,9 @@ export class RoomAssetsService {
       qb.andWhere('asset.status = :status', { status: query.status });
     if (query.roomId)
       qb.andWhere('room.id = :roomId', { roomId: query.roomId });
-
+    if (query.buildingId)
+      qb.andWhere('building.id = :buildingId', { buildingId: query.buildingId });
+    
     // ✅ No paging
     const items = await qb.getMany();
     return items;
