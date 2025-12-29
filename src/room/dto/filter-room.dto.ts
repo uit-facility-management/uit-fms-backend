@@ -1,5 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsNumber } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsDate, IsEnum, IsIn, IsInt, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { DayOfWeek } from 'src/schedule/entities/schedule.entity';
 
 export class FilterRoomDto {
@@ -41,4 +42,47 @@ export class FilterRoomDto {
   })
   @IsEnum(DayOfWeek)
   day_of_week?: DayOfWeek;
+}
+
+export class RoomQueryDto {
+  @ApiPropertyOptional({ description: 'Search keyword' })
+  @IsOptional()
+  @IsString()
+  q?: string;
+
+  @ApiPropertyOptional({ description: 'Building id' })
+  @IsOptional()
+  @IsString()
+  buildingId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Room type',
+    enum: ['classroom', 'lab', 'meeting', 'other'],
+  })
+  @IsOptional()
+  @IsIn(['classroom', 'lab', 'meeting', 'other'])
+  type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Room status',
+    enum: ['active', 'inactive', 'maintenance'],
+  })
+  @IsOptional()
+  @IsIn(['active', 'inactive', 'maintenance'])
+  status?: string;
+
+  @ApiPropertyOptional({ description: 'Stage/Floor (>=0)' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  stage?: number;
+
+  @ApiPropertyOptional({ description: 'Capacity (>=0)' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  capacity?: number;
+
 }

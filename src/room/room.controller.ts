@@ -11,7 +11,7 @@ import {
 import { RoomService } from './room.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
-import { FilterRoomDto } from './dto/filter-room.dto';
+import { FilterRoomDto, RoomQueryDto } from './dto/filter-room.dto';
 
 @Controller('api/v1/room')
 export class RoomController {
@@ -40,8 +40,8 @@ export class RoomController {
     return this.roomService.findRoomSchedules(id);
   }
   @Get()
-  findAll() {
-    return this.roomService.findAll();
+  findAll(@Query() query: RoomQueryDto) {
+    return this.roomService.findAll(query);
   }
 
   @Get(':id')
