@@ -3,11 +3,11 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Room } from './entities/room.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { RoomAssetsService } from 'src/room-assets/room-assets.service';
 import { ScheduleService } from 'src/schedule/schedule.service';
 import { IncidentService } from 'src/incident/incident.service';
-import { FilterRoomDto } from './dto/filter-room.dto';
+import { FilterRoomDto, RoomQueryDto } from './dto/filter-room.dto';
 @Injectable()
 export class RoomService {
   constructor(
@@ -66,12 +66,68 @@ export class RoomService {
   async findRoomSchedules(room_id: string) {
     return this.scheduleService.findByRoom(room_id);
   }
-  async findAll() {
-    const rooms = await this.roomRepository.find({
-      relations: ['building'],
-    });
-    return rooms;
+
+  async findAll(query?: RoomQueryDto) {
+    if (!query) {
+      const rooms = await this.roomRepository.find({
+        relations: ['building'],
+      });
+      return rooms;
+    }
+    const qb = this.roomRepository
+      .createQueryBuilder('room')
+      .leftJoinAndSelect('room.building', 'building');
+
+    // ===== Search =====
+    if (query?.q?.trim()) {
+      const keyword = `%${query.q.trim()}%`;
+      qb.andWhere(
+        new Brackets((sub) => {
+          sub
+            .where('room.name ILIKE :keyword', { keyword })
+            .orWhere('room.id::text ILIKE :keyword', { keyword })
+            .orWhere('building.name ILIKE :keyword', { keyword })
+            .orWhere('room.stage::text ILIKE :keyword', { keyword })
+            .orWhere('room.capacity::text ILIKE :keyword', { keyword });
+        }),
+      );
+    }
+
+    // ===== Filters =====
+    if (query?.buildingId) {
+      qb.andWhere('building.id = :buildingId', { buildingId: query.buildingId });
+    }
+
+    if (query?.type) {
+      qb.andWhere('room.type = :type', { type: query.type });
+    }
+
+    if (query?.status) {
+      qb.andWhere('room.status = :status', { status: query.status });
+    }
+
+    if (query?.stage) {
+      const stage = Number(query.stage);
+      if (!isNaN(stage)) {
+        qb.andWhere('room.stage = :stage', { stage });
+      }
+    }
+
+    if (query?.capacity) {
+      const capacity = Number(query.capacity);
+      if (!isNaN(capacity)) {
+        qb.andWhere('room.capacity >= :capacity', { capacity });
+      } else {
+        console.error("Invalid capacity value:", query.capacity);
+      }
+    }
+
+    // optional: sort cho ổn định
+    qb.orderBy('building.name', 'ASC').addOrderBy('room.name', 'ASC');
+
+    return qb.getMany();
   }
+
   async findByBuilding(building_id: string) {
     return this.roomRepository.find({ where: { building_id } });
   }
