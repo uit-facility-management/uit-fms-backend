@@ -24,9 +24,13 @@ export class DeviceController {
   }
 
   @Get()
-  @ApiQuery({ name: 'status', required: false })
-  findAll(@Query('status') status?: DeviceStatus) {
-    return this.deviceService.findAll(status);
+  @ApiQuery({ name: 'q', required: false })
+  @ApiQuery({ name: 'status', required: false, enum: DeviceStatus })
+  findAll(
+    @Query('q') q?: string,
+    @Query('status') status?: DeviceStatus,
+  ) {
+    return this.deviceService.findAll(q, status);
   }
 
   @Get(':id/borrow-tickets')
