@@ -17,6 +17,7 @@ async function bootstrap() {
     origin: (origin, callback) => {
       const allowedOrigins = [
         'http://localhost:3000',
+        'http://localhost:3001',
         'https://uit-fms-frontend-production.up.railway.app',
       ];
 
