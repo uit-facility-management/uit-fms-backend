@@ -16,6 +16,18 @@ services:
       - postgres
       - redis
 
+  watchtower:
+    image: containrrr/watchtower
+
+    container_name: watchtower
+
+    restart: unless-stopped
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    command: --interval 30 --cleanup
+
   postgres:
     image: postgres:15
     container_name: uit_fms_postgres
