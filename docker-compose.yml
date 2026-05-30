@@ -6,15 +6,33 @@ services:
     container_name: uit_fms_backend
     restart: unless-stopped
 
-    env_file:
-      - .env
+  environment:
+    PORT: 3001
 
-    ports:
-      - '3001:3001'
+    DB_HOST: postgres
+    DB_PORT: 5432
+    DB_USER: postgres
+    DB_PASS: 123456
+    DB_NAME: uit_fms
 
-    depends_on:
-      - postgres
-      - redis
+    DATABASE_URL: postgresql://postgres:123456@postgres:5432/uit_fms
+
+    REDIS_URL: redis://redis:6379
+
+    JWT_SECRET: ${JWT_SECRET}
+
+    GMAIL_USER: lamanhkhoa2004@gmail.com
+    GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
+    GMAIL_FROM: lamanhkhoa2004@gmail.com
+
+    SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+
+  ports:
+    - "3001:3001"
+
+  depends_on:
+    - postgres
+    - redis
 
   watchtower:
     image: containrrr/watchtower

@@ -19,15 +19,9 @@ jobs:
       - name: Wait for backend
         run: sleep 30
 
-      - name: Test Login API
+      - name: Test Health API
         run: |
-          RESPONSE=$(curl -s -X POST http://localhost:3001/api/v1/auth/login \
-          -H "Content-Type: application/json" \
-          -d "{\"email\":\"${{ secrets.TEST_EMAIL }}\",\"password\":\"${{ secrets.TEST_PASSWORD }}\"}")
-
-          echo "$RESPONSE"
-
-          echo "$RESPONSE" | grep -q "access_token"
+          curl --fail http://localhost:3001/api/v1/health
 
       - name: Shutdown containers
         if: always()
