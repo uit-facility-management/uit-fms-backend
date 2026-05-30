@@ -6,45 +6,28 @@ services:
     container_name: uit_fms_backend
     restart: unless-stopped
 
-  environment:
-    PORT: 3001
+    env_file:
+      - .env
 
-    DB_HOST: postgres
-    DB_PORT: 5432
-    DB_USER: postgres
-    DB_PASS: 123456
-    DB_NAME: uit_fms
+    ports:
+      - "3001:3001"
 
-    DATABASE_URL: postgresql://postgres:123456@postgres:5432/uit_fms
+    depends_on:
+      - postgres
+      - redis
 
-    REDIS_URL: redis://redis:6379
-
-    JWT_SECRET: ${JWT_SECRET}
-
-    GMAIL_USER: lamanhkhoa2004@gmail.com
-    GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
-    GMAIL_FROM: lamanhkhoa2004@gmail.com
-
-    SENDGRID_API_KEY: ${SENDGRID_API_KEY}
-
-  ports:
-    - "3001:3001"
-
-  depends_on:
-    - postgres
-    - redis
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   watchtower:
     image: containrrr/watchtower
-
     container_name: watchtower
-
     restart: unless-stopped
 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-    command: --interval 30 --cleanup
+    command: --interval 30 --cleanup --label-enable
 
   postgres:
     image: postgres:15
@@ -57,10 +40,13 @@ services:
       POSTGRES_DB: uit_fms
 
     ports:
-      - '5439:5432'
+      - "5439:5432"
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
   redis:
     image: redis:7
@@ -68,10 +54,13 @@ services:
     restart: unless-stopped
 
     ports:
-      - '6379:6379'
+      - "6379:6379"
 
     volumes:
       - redis_data:/data
+
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
 volumes:
   postgres_data:

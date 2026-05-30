@@ -1,0 +1,36 @@
+services:
+  backend:
+    build: .
+
+    environment:
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: 123456
+      DB_NAME: uit_fms
+      DATABASE_URL: postgresql://postgres:123456@postgres:5432/uit_fms
+      REDIS_URL: redis://redis:6379
+
+      JWT_SECRET: test_secret
+      GMAIL_USER: test@test.com
+      GMAIL_APP_PASSWORD: test
+      GMAIL_FROM: test@test.com
+      SENDGRID_API_KEY: test
+
+    ports:
+      - "3001:3001"
+
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: uit_fms
+
+  redis:
+    image: redis:7
