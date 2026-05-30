@@ -13,6 +13,8 @@ import { BorrowTicketModule } from './borrow_ticket/borrow_ticket.module';
 import { DeviceModule } from './device/device.module';
 import { StudentModule } from './student/student.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { AppService } from './app.service';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -60,5 +62,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
     StudentModule,
     DashboardModule,
   ],
+
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
