@@ -20,7 +20,7 @@ jobs:
 
       - name: Test Health API
         run: |
-          curl --fail http://localhost:3001/api/v1/health
+          curl --fail http://localhost:3001/health
 
       - name: Shutdown containers
         if: always()
